@@ -1,1 +1,1 @@
-# Generalized-Debye-Huckel
+# Generalized Debye-Huckel Model
