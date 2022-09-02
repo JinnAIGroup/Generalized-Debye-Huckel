@@ -1,4 +1,6 @@
 # Generalized Debye-Huckel Model
+## Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu
+## Institute of Computational and Modeling Science, National Tsing Hua University, Hsinchu, Taiwan
 We propose a generalized Debye-Huckel model from Poisson-Fermi theory to predict the mean activity coefficient of
 electrolytes in water-methanol mixtures with arbitrary percentage of methanol from 0 to 100%. The model applies
 to any number of ionic species and accounts for both short and long ion-ion, ion-water, ion-methanol, and water-methanol interactions, the size effect of all particles, and the dielectric effect of mixed-solvent solutions. We also
