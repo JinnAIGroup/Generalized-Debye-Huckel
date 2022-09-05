@@ -1,4 +1,4 @@
-% SYC, CLL, JLL, 2022.8.29
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 3, 2022. 
 
 function [C1m, gamma] = DataFit(salt)
   if salt == "NaF"

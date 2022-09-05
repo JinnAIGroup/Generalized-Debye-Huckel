@@ -1,4 +1,4 @@
-  % SYC, CLL, JLL, 2022.8.29
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 3, 2022. 
 
 function [mixNo, C1mX1, C1mX2, C1mX3, C1mX4, C1mX5, g_dataX1, g_dataX2, g_dataX3, g_dataX4, g_dataX5, delta_alpha] = DataPredict(salt)
   if salt == "NaF"
@@ -19,7 +19,7 @@ function [mixNo, C1mX1, C1mX2, C1mX3, C1mX4, C1mX5, g_dataX1, g_dataX2, g_dataX3
     C1mX5 = [0.000286 0.000585 0.000883 0.002982 0.003411 0.003841 0.004902 0.005964 0.006321 0.006679];
     g_dataX5 = [0.965 0.875 0.862 0.677 0.649 0.625 0.598 0.570 0.547 0.542];
   
-    delta_alpha = [0.06; -0.01; 0.005];
+    delta_alpha = [0.06; -0.01; 0.005];  % [(17)]
 
   elseif salt== "NaCl"
     mixNo = 4;

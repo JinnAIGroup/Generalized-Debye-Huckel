@@ -1,4 +1,4 @@
-% SYC, CLL, JLL 2022.7.17 - 8.30
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 5, 2022. 
 
 function g_PF = Activity(theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T)
   epsln = 8.854187; e = 1.6022; mol = 6.022045; kB = 1.380649; kBTe = (kB*T/e)*0.0001;

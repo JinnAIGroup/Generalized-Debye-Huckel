@@ -1,11 +1,11 @@
- % SYC, CLL, JLL 2022.7.17 - 8.31
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 5, 2022. 
 
 function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T)
   N  = length(C1M);      % total data points
   Nc = N*(N-1)*(N-2)/6;  % total number of 3-combinations of theta(I_k) (3 data points) to uniquely determine alpha(1), (2), (3) 
   theta_all = zeros(1, N);  % all theta(I_k) for k = 1, ..., N
 
-  % Get theta(k) that yields best g_fit(k) to g_data(k) by alternating variation of theta from 1.
+  % [Step 5.1] Get theta(k) that yields best g_fit(k) to g_data(k) by alternating variation of theta from 1.
   for k = 1:N
     g_fit = 1.; theta = 1.; n = 1;
     while (abs(g_fit - g_data(k)) > 0.003 && theta > 0 && theta < 2)
@@ -20,8 +20,8 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   
   ALPHA = zeros(3, Nc); index_ijk = zeros(Nc, 3); count = 0; 
   
-  % Find each (alpha(1), (2), (3)) from each 3-combination of theta(I_k) by
-  % sloving a 3x3 matrix system for all Nc. 
+  % [Step 5.2] Find each (alpha(1), (2), (3)) from each 3-combinations of
+  % theta(I_k) by sloving a 3x3 matrix system for all Nc. 
   for i = 1:N 
     for j = i+1:N
       for k = j+1:N
@@ -41,6 +41,7 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   
   g_fit_all = zeros(Nc, N);
 
+  % [Step 5.3]
   for i = 1:Nc
     theta = 1 + ALPHA(1,i)*power(C1M, 1/2) + ALPHA(2,i)*C1M + ALPHA(3,i)*power(C1M, 3/2);
 
@@ -48,6 +49,7 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
     g_fit_all(i, :) = exp(g_fit);
   end
   
+  % [Step 5.4]
   Errs = zeros(Nc, 1);  % shape: Nc x 1
   for i = 1:Nc
     err = 0;
@@ -65,12 +67,9 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
       idx = find(Errs == ascend_errs(1));  % index of the LS error for NaF and NaBr
   end
   
-  %ascend_err1 = ascend_errs(1)
-  %ascend_err290 = ascend_errs(290)
-  
   indices = index_ijk(idx, :);  % resume the indices of data points corresponding to the LS error
   
-  % Resume the best 3 thetas, 3 alphas, g_fit.
+  % [Step 5.5] Resume the best 3 thetas, 3 alphas, g_fit.
   theta = [theta_all(indices(1)); theta_all(indices(2)); theta_all(indices(3))];
   alpha = ALPHA(:, idx);
   g_fit = log(g_fit_all(idx, :));
