@@ -11,3 +11,7 @@ in pure-water solutions. It then uses another 3 parameters to predict the activi
 solutions for any percentage of methanol. Values of these parameters show mathematical or physical meaning of ionic
 activities under variable mixing condition and salt concentration. The algorithm can automatically determine optimal
 values for the 3 fitting parameters without any manual adjustments.
+
+![Acticity Coefficients](fig2.png)
+
+![theta in Born radius](fig3.png)
