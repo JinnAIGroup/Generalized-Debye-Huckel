@@ -1,4 +1,4 @@
-% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 3, 2022. 
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 5, 2022. 
 
 function [mixNo, C1mX1, C1mX2, C1mX3, C1mX4, C1mX5, g_dataX1, g_dataX2, g_dataX3, g_dataX4, g_dataX5, delta_alpha] = DataPredict(salt)
   if salt == "NaF"
