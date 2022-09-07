@@ -1,4 +1,4 @@
-% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 5, 2022. 
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 7, 2022. 
 
 function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T)
   N  = length(C1M);      % total data points
@@ -62,9 +62,11 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   % Sort Nc errors in ascending order.
   ascend_errs = sort(Errs);
   if salt == "NaCl"
-      idx = find(Errs == ascend_errs(290));  % index of the 209th error for NaCl to get alpha(1), (2), (3) = 0.0224, -0.0113, -0.0005 (not the best but more physical sense)
+      idx = find(Errs == ascend_errs(290));  
+      % index of the 209th error for NaCl to get alpha(1), (2), (3) = 0.0224, -0.0113, -0.0005 
+      % (not least error but more physical sense by conditioning alpha(1) > 0.02 to find 209)
   else
-      idx = find(Errs == ascend_errs(1));  % index of the LS error for NaF and NaBr
+      idx = find(Errs == ascend_errs(1));  % index of least error for NaF and NaBr
   end
   
   indices = index_ijk(idx, :);  % resume the indices of data points corresponding to the LS error

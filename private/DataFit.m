@@ -1,4 +1,4 @@
-% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 5, 2022. 
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 7, 2022. 
 
 function [C1m, gamma] = DataFit(salt)
   if salt == "NaF"
