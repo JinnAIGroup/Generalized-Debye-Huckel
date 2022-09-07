@@ -1,7 +1,7 @@
 % Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu 
 % Prediction of activity coefficients in water-methanol mixtures using
-% a generalized Debye-Huckel model, ArXiv
-% September 5, 2022
+% a generalized Debye-Huckel model, arXiv:2209.01892
+% September 7, 2022
 clc
 clear
 
@@ -14,9 +14,10 @@ FigPos_gamma = [0.15*ScSz(3) 0.05*ScSz(4) 0.7*ScSz(3) 0.4*ScSz(4)];  % Figure Po
 FigPos_theta = [0.15*ScSz(3) 0.45*ScSz(4) 0.7*ScSz(3) 0.4*ScSz(4)];  % Figure Position for theta
 
 for salts = 1:3
-  %--- Solvent Parameters: diS: dielectric constant [(11)], Vx: volume [(18)],
-  %    CxM (scalar): bulk concentration in M [(18)], 1: cation, 2: anion, 3: H2O, 4: MeOH [Step 1]
-  [C3M, C4M, CxM, V3, V4, Vx, diS] = Solvent(0); % x = 0: solvent = pure H2O
+  %--- Solvent Parameters: diS: dielectric constant [(11)], Vx: volume [(18)]
+  %    CxM (scalar): bulk concentration in M [(18)] 
+  %    1: cation, 2: anion, 3: H2O, 4: MeOH, x: mixing percentage in [0, 1]
+  [C3M, C4M, CxM, V3, V4, Vx, diS] = Solvent(0); % [Step 1], x = 0: solvent = pure H2O
   C3M = C3M*S2; C4M = C4M*S2; CxM = CxM*S2;  % scaled by S2 to unitless
 
   if salts == 1
@@ -27,23 +28,24 @@ for salts = 1:3
       salt = "NaBr"; FigPos_SubP = [0.71 0.15 0.26 0.8];
   end
   
-  %--- Born Radii: BornR0 in pure solvent (no salt) [(12), (13), Step 2]
-  [BornR0, q1, q2, V1, V2, mM, D] = Born(salt, diS, 0);
+  %--- Born Radii: BornR0 in pure solvent (no salt) [(12), (13)]
+  [BornR0, q1, q2, V1, V2, mM, D] = Born(salt, diS, 0);  % [Step 2]
 
   %--- Activity Data to Fit: C1m (vector): concentration in molality (m), gamma: mean activity [(16)]
   [C1m, gamma] = DataFit(salt); g_data = log(gamma);
 
-  %--- Salt molality (m) to Molarity (M): C1m to C1M [Step 3]
-  C1M = m2M(C1m, mM, D, 0).*S2;
+  %--- Salt molality (m) to Molarity (M): C1m to C1M
+  C1M = m2M(C1m, mM, D, 0).*S2;  % [Step 3]
   
   C2M = q1*C1M;
   BPfrac = (V1*C1M + V2*C2M + V3*C3M + V4*C4M)/S2/1660.6;  % Bulk Particle fraction [(2)]
 
-  %--- Newton() iteratively solves nonlinear [(18)] for V_sh that yields Rsh_c and Rsh_a [Step 4]. 
-  [Rsh_c, Rsh_a] = Newton(C1M, CxM, V0, V1, V2, Vx, S2, BPfrac);
+  %--- Newton() iteratively solves nonlinear [(18)] for V_sh that yields Rsh_c and Rsh_a. 
+  [Rsh_c, Rsh_a] = Newton(C1M, CxM, V0, V1, V2, Vx, S2, BPfrac);  % [Step 4]
   
-  %--- LSfit() returns g_fit as the best fit to g_data with alpha(1), (2), (3) [(14)] by Least Squares [Step 5].
-  [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T);
+  %--- LSfit() returns g_fit as the best fit to g_data with alpha(1), (2), (3) [(14)] by Least Squares.
+  [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, ...
+    C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T);  % [Step 5]
 
   %format long  % for all decimals in alpha
   alpha
@@ -100,8 +102,9 @@ for salts = 1:3
     alpha_x = alpha + x*delta_alpha;
     theta = 1 + alpha_x(1)*power(C1M, 1/2) + alpha_x(2)*C1M + alpha_x(3)*power(C1M, 3/2);
 
-    %--- Given theta, Activity() returns a mean activity [Step 8]. 
-    g_pred_x = Activity(theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T);
+    %--- Given theta, Activity() returns a mean activity. 
+    g_pred_x = Activity(theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, q1, q2, ...
+      V0, V1, V2, V3, V4, diS, T);  % [Step 8]
 
     plot_theta_x = round( 1 + power(C1M,1/2)*alpha_x(1) + C1M*alpha_x(2) + power(C1M,3/2)*alpha_x(3), 5 );
     
