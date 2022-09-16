@@ -64,7 +64,7 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   if salt == "NaCl"
       idx = find(Errs == ascend_errs(290));  
       % index of the 290th error for NaCl to get alpha(1), (2), (3) = 0.0224, -0.0113, -0.0005 
-      % (not least error but more physical sense by conditioning alpha(1) > 0.02 to find 209)
+      % (not least error but more physical sense by conditioning alpha(1) > 0.02 to find 290)
   else
       idx = find(Errs == ascend_errs(1));  % index of least error for NaF and NaBr
   end
