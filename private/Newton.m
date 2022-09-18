@@ -1,4 +1,4 @@
-% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 7, 2022. 
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 18, 2022. 
 
 function [Rsh_c, Rsh_a] = Newton(C1M, CxM, V0, V1, V2, Vx, S2, BPfrac)
   ON2Sh = 18;  % the occupancy number of solvent (H2O) molecules in 2 solvation (hydration) shells
@@ -7,7 +7,7 @@ function [Rsh_c, Rsh_a] = Newton(C1M, CxM, V0, V1, V2, Vx, S2, BPfrac)
   Vsh = 520*ones(1, length(C1M));
   
   x1 = Vsh; x0 = 0; IterNo = 0; IterMax = 1000;
-  while sum( abs(x1-x0) > 0.0001 ) && IterNo < IterMax
+  while max( abs(x1-x0) ) > 0.0001 && IterNo < IterMax
     x0 = x1;
     IterNo = IterNo + 1;
     f = a.*(x0.^c) - x0 + b;  % [(18), Step 4]
