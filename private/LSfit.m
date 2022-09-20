@@ -1,4 +1,4 @@
-% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 18, 2022.
+% Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 20, 2022.
 
 function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T)
   N  = length(C1M);      % total data points
@@ -46,7 +46,7 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
     theta = 1 + ALPHA(1,i)*power(C1M, 1/2) + ALPHA(2,i)*C1M + ALPHA(3,i)*power(C1M, 3/2);
 
     g_fit = Activity(theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, q1, q2, V0, V1, V2, V3, V4, diS, T);
-    g_fit_all(i, :) = exp(g_fit);
+    g_fit_all(i, :) = g_fit;
   end
 
   % [Step 5.4]
@@ -54,7 +54,7 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   for i = 1:Nc
     err = 0;
     for k = 1:N
-      err = err + ( g_fit_all(i, k) - exp(g_data(k)) )^2;  % sum of all N squared error
+      err = err + ( g_fit_all(i, k) - g_data(k) )^2;  % sum of all N squared error
     end
     Errs(i) = err;  % a total of Nc sums of errors
   end
@@ -79,5 +79,5 @@ function [g_fit, alpha, theta] = LSfit(g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, 
   % [Step 5.5] Resume the best 3 thetas, 3 alphas, g_fit.
   theta = [theta_all(indices(1)); theta_all(indices(2)); theta_all(indices(3))];
   alpha = ALPHA(:, idx);
-  g_fit = log(g_fit_all(idx, :));
+  g_fit = g_fit_all(idx, :);
 end
