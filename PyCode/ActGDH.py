@@ -160,6 +160,7 @@ for salts in range(1, 4):
     ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, \
              q1, q2, V0, V1, V2, V3, V4, diS, T)
 
+    #--- Prediction
     ActOut = Activity(ActIn)
     g_predX = g_predX + (ActOut.g_PF, )
 
