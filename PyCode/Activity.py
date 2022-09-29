@@ -1,4 +1,4 @@
-# Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 20, 2022.
+# Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu. September 29, 2022.
 
 import numpy as np
 
@@ -29,10 +29,10 @@ class Activity():
     lam = 1 - 4 * (Lcorr ** 2) / (LDebye ** 2)
     lambda1 = (1 - np.sqrt(lam)) / (2 * (Lcorr ** 2))
     lambda2 = (1 + np.sqrt(lam)) / (2 * (Lcorr ** 2))
-    d1 = lambda2 * ( (Lcorr ** 2) * lambda1 - 1 )
-    d2 = lambda1 * ( (Lcorr ** 2) * lambda2 - 1 )
-    THETA_c = (d1 - d2) / ( d1 * (np.sqrt(lambda1) * Rsh_c + 1) - d2 * (np.sqrt(lambda2) * Rsh_c + 1) )
-    THETA_a = (d1 - d2) / ( d1 * (np.sqrt(lambda1) * Rsh_a + 1) - d2 * (np.sqrt(lambda2) * Rsh_a + 1) )
+    d1 = lambda1 ** 2
+    d2 = lambda2 ** 2
+    THETA_c = (d1 - d2) / ( d1 * (np.sqrt(lambda2) * Rsh_c + 1) - d2 * (np.sqrt(lambda1) * Rsh_c + 1) )
+    THETA_a = (d1 - d2) / ( d1 * (np.sqrt(lambda2) * Rsh_a + 1) - d2 * (np.sqrt(lambda1) * Rsh_a + 1) )
 
     gamma1 = a1 * (1 / BornR_c - 1 / BornR0[0] + (THETA_c - 1) / Rsh_c)
     gamma2 = a2 * (1 / BornR_a - 1 / BornR0[1] + (THETA_a - 1) / Rsh_a)
