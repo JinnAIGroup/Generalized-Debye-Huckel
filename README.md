@@ -1,5 +1,5 @@
-# Generalized Debye-Huckel Model
-## [Prediction of activity coefficients in water-methanol mixtures using a generalized Debye-Huckel model](https://arxiv.org/pdf/2209.01892.pdf)
+# Generalized Debye-Huckel Theory
+## [2022 Paper](https://arxiv.org/pdf/2209.01892.pdf)
 ### Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu
 #### Institute of Computational and Modeling Science, National Tsing Hua University, Hsinchu, Taiwan
 We propose a generalized Debye-Huckel model from Poisson-Fermi theory to predict the mean activity coefficient of
