@@ -32,9 +32,9 @@ def Solvent(x = None, T = None):  # x = 0: H2O, x = 1: MeOH
   V4 = 4 * np.pi * 1.915 ** 3 / 3  # MeOH
 
   if   T == 273.15: d_H2O = 55.50  #   0 ◦C [PF4Ex3.88], d: density in M
-  elif T == 298.15: d_H2O = 55.34  #  25 ◦C [P2T1,PF4T3.75]
+  elif T == 298.15: d_H2O = 55.34  #  25 ◦C [PF4T3.75]
   elif T == 373.15: d_H2O = 53.18  # 100 ◦C
-  elif T == 423.15: d_H2O = 50.90  # 150 ◦C [P2T1,PF4T3.76]
+  elif T == 423.15: d_H2O = 50.90  # 150 ◦C [PF4T3.76]
   elif T == 473.15: d_H2O = 47.85  # 200 ◦C
   elif T == 523.15: d_H2O = 44.30  # 250 ◦C
   elif T == 573.15: d_H2O = 40.24  # 300 ◦C
@@ -130,7 +130,7 @@ def Born(salt = None, ϵ_s_x = None, x = None, T = None):
   BornR0a = - q2 * q2 * e * e * mol * 10000 * (1 - 1 / ϵ_s_x_298) / (Fan * 4.1868 * 8 * np.pi * ϵ_0)
   BornR0 = np.array([BornR0c, BornR0a])  # at T = 298.15
 
-  BornR0 = BornR0 * (298.15 / T) * (1 - 1 / ϵ_s_x) / (1 - 1 / ϵ_s_x_298)  # [P2D.7]
+  BornR0 = BornR0 * (298.15 / T) * (1 - 1 / ϵ_s_x) / (1 - 1 / ϵ_s_x_298)  # [P2(4.4))]
 
   return BornR0, q1, q2, p1, p2, V1, V2, mM, DG
 

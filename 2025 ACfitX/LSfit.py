@@ -99,7 +99,6 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
      q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T, alphaX, ActIn_Mix) = LfInX
 
     N = len(C1M)
-      #Nc = int(N * (N - 1) * (N - 2) / 6)  # total combinations for finding (alpha[1], [2], [3]) with alpha[0]=alphaX fixed
     Nc = int( N * (N - 1) * (N - 2) * (N - 3) * (N - 4) / (24 * 5) )  # total combinations for finding (alpha[0], [1], [2], [3], [4])
     theta_all = np.zeros(N)
 

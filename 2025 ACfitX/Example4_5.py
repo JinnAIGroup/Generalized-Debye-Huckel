@@ -24,7 +24,7 @@ plt.figure(figsize=(13,8))
 a, b, c = 1, 2, 1  # subplot(a, b, c): rows, columns, counter
 
 Salts = ['LaCl3']
-Ts, Z = [298.15], 0.68  # Z: polarizability factor [P2(2.22)]
+Ts, Z = [298.15], 0.68
 
 for salt in Salts:
   for (T, T_i) in zip(Ts, range(len(Ts))):
@@ -41,7 +41,7 @@ for salt in Salts:
     C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
 
     IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
-    numPW = C3M * pH2O  # = 380.24 [P2(2.22)]
+    numPW = C3M * pH2O
     numPI = C1M * p1 + C2M * p2
     numPWI = numPW + numPI
     fac_pZ = 1 - Z * IS / C3M
@@ -49,9 +49,9 @@ for salt in Salts:
     numPW_Z = C3M * pH2O_Z
     numPWI_Z = numPW_Z + numPI
     X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-    ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
+    ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-    R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+    R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
     Rsh_c, Rsh_a = R_ca, R_ca
     V_sh = 4 * np.pi * (R_ca ** 3) / 3 - V1  # shell volumn
     N_H2O_max = V_sh / V3  # max solvation water number (no void)

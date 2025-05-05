@@ -16,7 +16,7 @@ from LSfit import LSfit, Activity
 #   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
 #   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
 
-T, Z = 298.15, 0.68  # Z: polarizability factor [P2(2.20)]
+T, Z = 298.15, 0.68
 np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
 plt.figure(figsize=(13,8))
 a, b, c = 1, 2, 1  # subplot(a, b, c): rows, columns, counter
@@ -38,7 +38,7 @@ C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # for H2O
 C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
 
 IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
-numPW = C3M * pH2O  # [P2(2.20)]
+numPW = C3M * pH2O
 numPI = C1M * p1 + C2M * p2
 numPWI = numPW + numPI
 fac_pZ = 1 - Z * IS / C3M
@@ -46,9 +46,9 @@ pH2O_Z = fac_pZ * pH2O
 numPW_Z = C3M * pH2O_Z
 numPWI_Z = numPW_Z + numPI
 X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 Rsh_c, Rsh_a = R_ca, R_ca
 
 # LSfit() returns g_fit as the best fit to g_data with alpha_1, 2, 3 [P1(14)] by Least Squares.
@@ -71,7 +71,7 @@ C1M = m2M(C1m_x, mM, DG, x, T) * S2
 C2M = -q1 * C1M / q2
 
 IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
-numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.20)]
+numPW = C3M * pH2O + C4M * pMeOH
 numPI = C1M * p1 + C2M * p2
 numPWI = numPW + numPI
 fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -79,9 +79,9 @@ pH2O_Z, pMeOH_Z = fac_pZ * pH2O, fac_pZ * pMeOH
 numPW_Z = C3M * pH2O_Z + C4M * pMeOH_Z
 numPWI_Z = numPW_Z + numPI
 X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 Rsh_c, Rsh_a = R_ca, R_ca
 
 LfIn = (g_dataY, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
@@ -123,7 +123,7 @@ for Mix_i in range(2):
       C6M = -q5 * C1M / q6
 
       IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2 + C5M * q5 ** 2 + C6M * q6 ** 2)  # array
-      numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.20)]
+      numPW = C3M * pH2O + C4M * pMeOH
       numPI = C1M * p1 + C2M * p2 + C5M * p5 + C6M * p6
       numPWI = numPW + numPI
       fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -163,7 +163,7 @@ for Mix_i in range(2):
       C8M = -q7 * C1M / q8
 
       IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2 + C5M * q5 ** 2 + C6M * q6 ** 2 + C7M * q7 ** 2 + C8M * q8 ** 2)  # array
-      numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.20)]
+      numPW = C3M * pH2O + C4M * pMeOH
       numPI = C1M * p1 + C2M * p2 + C5M * p5 + C6M * p6 + C7M * p7 + C8M * p8
       numPWI = numPW + numPI
       fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -189,7 +189,7 @@ for Mix_i in range(2):
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
       g_predX_Mix2 = g_predX_Mix2 + (ActOut.g_PF, )  # Predicted results
 
-# Plot fitted results [P2F2]
+# Plot fitted results
 plt.figure(1)
 plt.subplot(a, b, c)
 plt.xlabel('m (mol/kg)', fontsize=12)
@@ -200,7 +200,7 @@ plt.title('(A) NaCl+NaBr', fontsize=12)
 
 plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
 
-# Plot predicted results [P2F2]
+# Plot predicted results
 for i in range(6):
   if i == 0:
     g_pred_x = g_predX_Mix1[0]
@@ -233,7 +233,7 @@ plt.title('(B) NaCl+NaBr+NaF', fontsize=12)
 
 plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
 
-# Plot predicted results [P2F2]
+# Plot predicted results
 for i in range(6):
   if i == 0:
     g_pred_x = g_predX_Mix2[0]

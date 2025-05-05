@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 
 ϵ_0, e, mol, kB, V0 = 8.854187, 1.6022, 6.022045, 1.380649, 1.0
 
-class ActF_2():  # Activity Formula 2 [P2(4.4)]
+class ActF_2():  # Activity Formula 2 [P2(3.5)]
   def __init__(self, ActIn, ActIn_Mix):  # IS: array used by class ActF_2
     (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
      q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T) = ActIn
@@ -42,7 +42,7 @@ class ActF_2():  # Activity Formula 2 [P2(4.4)]
     LAMBDA = (V1 * V1 * C1M + V2 * V2 * C2M + V3 * V3 * C3M + V4 * V4 * C4M + V5 * V5 * C5M + V6 * V6 * C6M + V7 * V7 * C7M + V8 * V8 * C8M) / S2 / 1660.5655
 
     LAMBDA = V0 * GammaB + LAMBDA
-    LAMBDA = BICfrac / LAMBDA  # [P2(2.8)]
+    LAMBDA = BICfrac / LAMBDA  # [P2(2.10)]
 
     LDebye = np.sqrt( ϵ_s_x_I * ϵ_0 * kBTe * 1.6606 / e / ( ( \
                q1 * q1 * C1M - q1 * V1 * LAMBDA * C1M + \
@@ -110,11 +110,11 @@ class ActF_2():  # Activity Formula 2 [P2(4.4)]
     a2 = q2 * q2 * e * e / (8 * np.pi * ϵ_0 * ϵ_s_x_I * kB * T) * (10 ** 7)
 
     gamma1 = a1 * ( 1 / BornR_c + (THETA4_c / THETA3_c - 1) / Rsh_c \
-           - 2 * np.exp(-BornR_c / Lcorr) * THETA1_c / THETA3_c / Lcorr - 1 / BornR0[0] )  # [P2(3.4)] array
+           - 2 * np.exp(-BornR_c / Lcorr) * THETA1_c / THETA3_c / Lcorr - 1 / BornR0[0] )  # [P2(3.5)] array
     gamma2 = a2 * ( 1 / BornR_a + (THETA4_a / THETA3_a - 1) / Rsh_a \
            - 2 * np.exp(-BornR_a / Lcorr) * THETA1_a / THETA3_a / Lcorr - 1 / BornR0[1] )
 
-    g_PF = (np.abs(q2) * gamma1 + np.abs(q1) * gamma2) / (np.abs(q1) + np.abs(q2))  # [P2(3.5)] array
+    g_PF = (np.abs(q2) * gamma1 + np.abs(q1) * gamma2) / (np.abs(q1) + np.abs(q2))  # [P2(3.6)] array
 
     '''if len(g_PF.shape) > 0:
       if any(g_PF.imag != 0): print('g_PF.imag != 0 ...')  # Yes g_PF.imag != 0

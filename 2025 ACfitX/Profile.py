@@ -101,20 +101,20 @@ class Profile():  # Given Q, find various function profiles
         eltr[i] = S1 * Q * A.real / ϵ_s_x_I  # [P2(3.1a)]
         ditr[i] = 1
         A_hat = 1 / BornR_c - 1 / (LDebye + Rsh_c)
-        eltr_2PF[i] = S1 * Q * A_hat / ϵ_s_x_I  # [P2(C.23a)]
+        eltr_2PF[i] = S1 * Q * A_hat / ϵ_s_x_I  # [P2(4.5a)]
         A_hat = 1 / BornR_c - 1 / (LDebye_PB + Rsh_c)
-        eltr_PB[i] = S1 * Q * A_hat / ϵ_s_x_I  # [P2(C.23a)]
+        eltr_PB[i] = S1 * Q * A_hat / ϵ_s_x_I
         A_DH = 1 / a_i - 1 / (LDebye + a_i + a_j)  # for Remark 4.4 in 2ndGDH.tex
-        eltr_DH[i] = S1 * Q * A_DH / ϵ_s_x_I  # [P2(C.23a)]
+        eltr_DH[i] = S1 * Q * A_DH / ϵ_s_x_I
 
       if rL[i] > Rsh_c:
         if rL[i] < Rsh_c + DL: IdxSh = i
         top = lambda2 * np.exp(-np.sqrt(lambda1) * rL[i]) \
             + lambda1 * np.exp(-np.sqrt(lambda2) * rL[i]) * THETA2_c
-        tCr = top / rL[i] / THETA3_c  # [P2(C.16b)]
+        tCr = top / rL[i] / THETA3_c
         Cr = (Lcorr ** 2) * (LDebye ** 2) * tCr  # [P2(3.1c)]
         eltr[i] = S1 * Q * Cr.real / ϵ_s_x_I
-        psi[i]  = S1 * Q * tCr.real / ϵ_s_x_I * ϵ_0  # [P2(3.2a)][PF4Ex3.88(7)]
+        psi[i]  = S1 * Q * tCr.real / ϵ_s_x_I * ϵ_0  # [P2(3.2a)]
         ster[i] = Newton2(eltr[i], NtIn, ActIn_Mix)
         ionC[i] = C1M * np.exp(-q1 * eltr[i] + V1 * ster[i] / V0)
         ionA[i] = C2M * np.exp(-q2 * eltr[i] + V2 * ster[i] / V0)
@@ -127,7 +127,7 @@ class Profile():  # Given Q, find various function profiles
         ditr[i] = (2 * X + 1) / (1 - X)
 
         C_hat = np.exp(-(rL[i] - Rsh_c) / LDebye) / (1 + Rsh_c / LDebye) / rL[i]
-        eltr_2PF[i] = S1 * Q * C_hat / ϵ_s_x_I  # [P2(C.23c)]
+        eltr_2PF[i] = S1 * Q * C_hat / ϵ_s_x_I  # [P2(4.5c)]
         ster_2PF = Newton2(eltr_2PF[i], NtIn, ActIn_Mix)
         ionC_2PF = C1M * np.exp(-q1 * eltr_2PF[i] + V1 * ster_2PF / V0)
         ionA_2PF = C2M * np.exp(-q2 * eltr_2PF[i] + V2 * ster_2PF / V0)
@@ -136,7 +136,7 @@ class Profile():  # Given Q, find various function profiles
         rho_2PF[i]  = q1 * ionC_2PF + q2 * ionA_2PF + q5 * ion5_2PF + q6 * ion6_2PF  # unit: eM [PF4Ex3.88(7)]
 
         C_hat = np.exp(-(rL[i] - Rsh_c) / LDebye_PB) / (1 + Rsh_c / LDebye_PB) / rL[i]
-        eltr_PB[i] = S1 * Q * C_hat / ϵ_s_x_I  # [P2(C.23c)]
+        eltr_PB[i] = S1 * Q * C_hat / ϵ_s_x_I  # [P2(4.5c)]
         ionC_PB = C1M * np.exp(-q1 * eltr_PB[i])
         ionA_PB = C2M * np.exp(-q2 * eltr_PB[i])
         ion5_PB = C5M * np.exp(-q5 * eltr_PB[i])
@@ -169,9 +169,9 @@ class Profile():  # Given Q, find various function profiles
         X = (ϵ_s_x_I - 1) / (ϵ_s_x_I + 2)
         ditr[i] = (2 * X + 1) / (1 - X)
         B_hat = 1 / rL[i] - 1 / (LDebye + Rsh_c)
-        eltr_2PF[i] = S1 * Q * B_hat / ϵ_s_x_I  # [P2(C.23b)]
+        eltr_2PF[i] = S1 * Q * B_hat / ϵ_s_x_I  # [P2(4.5b)]
         B_hat = 1 / rL[i] - 1 / (LDebye_PB + Rsh_c)
-        eltr_PB[i] = S1 * Q * B_hat / ϵ_s_x_I  # [P2(C.23b)]
+        eltr_PB[i] = S1 * Q * B_hat / ϵ_s_x_I
 
 
     self.rL, self.eltr, self.psi, self.ster, self.ionC, self.ionA, self.solv, self.rho, self.ditr \

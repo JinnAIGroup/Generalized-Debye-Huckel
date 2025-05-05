@@ -23,7 +23,7 @@ np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
 plt.figure(figsize=(13,8))
 a, b, c = 1, 2, 1
 
-Z = 0.68  # polarizability factor [P2(2.20)]
+Z = 0.68
 
 Salts = ['LaCl3', 'NaCl']
 #Salts = ['LaCl3']  # for Remark 4.4 in 2ndGDH.tex
@@ -45,7 +45,7 @@ for salt in Salts:
       C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
 
       IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
-      numPW = C3M * pH2O  # = 380.24 [P2(2.20)]
+      numPW = C3M * pH2O
       numPI = C1M * p1 + C2M * p2
       numPWI = numPW + numPI
       fac_pZ = 1 - Z * IS / C3M
@@ -53,9 +53,9 @@ for salt in Salts:
       numPW_Z = C3M * pH2O_Z
       numPWI_Z = numPW_Z + numPI
       X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-      ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+      ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-      R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+      R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
       Rsh_c, Rsh_a = R_ca, R_ca
 
       LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \

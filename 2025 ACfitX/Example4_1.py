@@ -1,7 +1,7 @@
 '''
 Author: Jinn-Liang Liu, May 5, 2025.
 
-For P2 Example 4.1: LiCl, NaCl, NaBr in (H2O)x+(MeOH)1−x. Redo [P1F2,T2] for new [P2(4.4)]. [P1F2] = Fig 2 in P1 etc.
+For P2 Example 4.1: LiCl, NaCl, NaBr in (H2O)x+(MeOH)1−x.
 
 Papers:
 P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
@@ -30,7 +30,7 @@ from LSfit import LSfit, Activity
 #   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
 #   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
 
-T, Z = 298.15, 0.68  # Z: polarizability factor [P2(2.20)]
+T, Z = 298.15, 0.68  # Z: polarizability factor [P2(2.22)]
 
 np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
 plt.figure(figsize=(13,8))
@@ -55,7 +55,7 @@ for salt in Salts:
   C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
 
   IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
-  numPW = C3M * pH2O  # [P2(2.20)]
+  numPW = C3M * pH2O  # [P2(2.22)]
   numPI = C1M * p1 + C2M * p2
   numPWI = numPW + numPI
   fac_pZ = 1 - Z * IS / C3M
@@ -63,7 +63,7 @@ for salt in Salts:
   numPW_Z = C3M * pH2O_Z
   numPWI_Z = numPW_Z + numPI
   X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
 
   R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
   Rsh_c, Rsh_a = R_ca, R_ca
@@ -92,7 +92,7 @@ for salt in Salts:
   C2M = -q1 * C1M / q2
 
   IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
-  numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.20)]
+  numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.22)]
   numPI = C1M * p1 + C2M * p2
   numPWI = numPW + numPI
   fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -100,7 +100,7 @@ for salt in Salts:
   numPW_Z = C3M * pH2O_Z + C4M * pMeOH_Z
   numPWI_Z = numPW_Z + numPI
   X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
 
   R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
   Rsh_c, Rsh_a = R_ca, R_ca
@@ -133,7 +133,7 @@ for salt in Salts:
     C2M = -q1 * C1M / q2
 
     IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
-    numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.20)]
+    numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.22)]
     numPI = C1M * p1 + C2M * p2
     numPWI = numPW + numPI
     fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -141,7 +141,7 @@ for salt in Salts:
     numPW_Z = C3M * pH2O_Z + C4M * pMeOH_Z
     numPWI_Z = numPW_Z + numPI
     X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-    ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.20)]
+    ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
 
     R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
     Rsh_c, Rsh_a = R_ca, R_ca
