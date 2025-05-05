@@ -1,5 +1,18 @@
 '''
 Author: Jinn-Liang Liu, May 5, 2025.
+
+Papers:
+P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
+    Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
+    Fluid Phase Equilibria 565, 113662 (2023)
+P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
+    Generalized Debye-Hückel theory of electrolyte thermodynamics: I. Application, 2025.
+P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
+    SIAM J. Appl. Math. 80, 2003-2023 (2020).
+
+Jinn-Liang Liu's unpublished research notes:
+PF0:   A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, August 30, 2012
+PF1-4: 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 1-4), August 6, 2013 - November 11, 2022
 '''
 import numpy as np
 import warnings
