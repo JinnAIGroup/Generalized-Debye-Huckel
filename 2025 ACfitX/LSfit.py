@@ -1,22 +1,12 @@
 '''
-Author: Jinn-Liang Liu, Jan 27, 2025.
+Author: Jinn-Liang Liu, May 5, 2025.
 '''
-
 import numpy as np
 
-from Activity import ActF_1, ActF_2  # Activity Formula 1, 2
+from Activity import ActF_2  # Activity Formula 2
 
-#Activity, AF_idx = ActF_1, 1
-Activity, AF_idx = ActF_2, 2
+Activity = ActF_2
 deviate, ErrTol = 0.0001, 0.008
-  # alpha = [ 0.01147  0.34639 -0.5708   0.31484 -0.05963] NaF  Example4_1.py
-#deviate, ErrTol = 0.0001, 0.003
-  # alpha = [ 0.04717  0.20311 -0.3776   0.20943 -0.03961] NaF
-  # NG: Fig LaCl3  Example4_3.py
-#deviate, ErrTol = 0.0001, 0.001
-  # alpha = [ 0.05242  0.18666 -0.36142  0.20436 -0.03948] NaF
-  # Error: Fig MgCl2  Example4_3.py alpha = [ 51.82336 -35.5022    8.90877  -0.9709    0.03886] MgCl2
-
 
 
 class LSfit():  # input: g_data; output: LS g_fit and alpha[0], [1], [2], [3]

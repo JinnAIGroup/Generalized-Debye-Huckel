@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, Jan 7, 2025.
+Author: Jinn-Liang Liu, May 5, 2025.
 
 [Bar85] Barthel, J., et al. (1985). Vapor pressures of non-aqueous electrolyte
         solutions. Part 1. Alkali metal salts in methanol. Journal of solution chemistry, 14, 621-633.
@@ -16,24 +16,7 @@ Author: Jinn-Liang Liu, Jan 7, 2025.
 
 [Val15]: FcatH2O  Na+: -424 kJ/mol = -101.3 kcal/mol, kJ/mol = 1/4.184 kcal/mol, 4.184: wiki
 '''
-
 import numpy as np
-
-'''
-For DG: Density Gradient not in [PF4T3.82B]
-
-mM: Molar Mass: https://www.webqc.org/mmcalc.php
-ME: Molecular Weight of NaF etc. => Google it => mM
-[Bar85TableII] => DG = c ME => find c: const. by TableII => code:
-
-DG = np.array([ 45., 77., 108., 84., 85., 113., 148., 181.])
-mM = np.array([ 58.44, 102.90, 149.89, 122.44, 119.01, 166.01, 212.37, 259.81])
-c = DG / mM
-# c = [0.770 0.748 0.720 0.686 0.714  0.680 0.696 0.696]
-c = np.mean(c)  # c = 0.71
-print("# c =", c)
-exit()
-'''
 
 c = 0.71
 # Verify 'NaCl': DG = 58.44 * c = 41.49 < 45. < 46.62 => not very precise => but in DG * m / 1000 => OK apprx.

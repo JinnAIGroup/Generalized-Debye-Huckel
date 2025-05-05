@@ -1,56 +1,11 @@
 '''
-Author: Jinn-Liang Liu, Feb 26, 2025.
+Author: Jinn-Liang Liu, May 5, 2025.
 '''
-
 import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 
 ϵ_0, e, mol, kB, V0 = 8.854187, 1.6022, 6.022045, 1.380649, 1.0
-
-class ActF_1():  # Activity Formula 1 [P1(15)]
-  def __init__(self, ActIn, ActIn_Mix):  # IS: array not used by class ActF_1
-    (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
-     q1, q2, V1, V2, V3, V4, ϵ_s_x, T) = ActIn
-
-    kBTe = (kB * T / e) * 0.0001
-    S1 = 1000 * e / (4 * np.pi * kBTe * ϵ_0)  # [PF0(5.9)]
-    S2 = 0.1 * mol * e / (kBTe * ϵ_0)         # [PF0(5.12)]
-    C2M = -q1 * C1M / q2  # array
-
-    BornR_c = theta * BornR0[0]
-    BornR_a = theta * BornR0[1]
-
-    BPfrac = (V1 * C1M + V2 * C2M + V3 * C3M + V4 * C4M) / S2 / 1660.5655  # 1660.5655: [PF4P48(11)], Bulk Particles fraction
-    BICfrac = (q1 * V1 * C1M + q2 * V2 * C2M) / S2 / 1660.5655  # Bulk Ionic Charge fraction
-    LAMBDA = (V1 * V1 * C1M + V2 * V2 * C2M + V3 * V3 * C3M + V4 * V4 * C4M) / S2 / 1660.5655
-    LAMBDA = V0 * (1 - BPfrac) + LAMBDA
-    #LAMBDA = (C1M / S2 / 1660.5655) * ((V1 - V2) ** 2) / LAMBDA  # [P1(10)]
-    LAMBDA = BICfrac / LAMBDA  # [P2(2.8)]
-
-    #LDebye = np.sqrt( ϵ_s_x * ϵ_0 * kBTe * 1.6606 / e / ( ((1 - LAMBDA) * q1 * q1 * C1M - q1 * q2 * C1M) / S2 ) )  # [P1(10)] (array or scalar)
-    LDebye = np.sqrt( ϵ_s_x * ϵ_0 * kBTe * 1.6606 / e / ( (q1 * q1 * C1M - q1 * V1 * LAMBDA * C1M \
-                      + q2 * q2 * C2M - q2 * V2 * LAMBDA * C2M) / S2 ) )  # [P2(2.8)] (array)
-    LBjerrum = S1 / ϵ_s_x  # scalar
-
-    Lcorr = np.sqrt(LBjerrum * LDebye / 48)  # [P1(5)] array
-
-    lam = 1 - 4 * (Lcorr ** 2) / (LDebye ** 2)
-    lambda1 = (1 - np.sqrt(lam)) / (2 * (Lcorr ** 2))  # array
-    lambda2 = (1 + np.sqrt(lam)) / (2 * (Lcorr ** 2))
-    d1 = lambda1 ** 2
-    d2 = lambda2 ** 2
-
-    THETA_c = (d1 - d2) / ( d1 * (np.sqrt(lambda2) * Rsh_c + 1) - d2 * (np.sqrt(lambda1) * Rsh_c + 1) )  # array
-    THETA_a = (d1 - d2) / ( d1 * (np.sqrt(lambda2) * Rsh_a + 1) - d2 * (np.sqrt(lambda1) * Rsh_a + 1) )
-
-    a1 = q1 * q1 * e * e / (8 * np.pi * ϵ_0 * ϵ_s_x * kB * T) * (10 ** 7)
-    a2 = q2 * q2 * e * e / (8 * np.pi * ϵ_0 * ϵ_s_x * kB * T) * (10 ** 7)
-
-    gamma1 = a1 * (1 / BornR_c - 1 / BornR0[0] + (THETA_c - 1) / Rsh_c)  # array
-    gamma2 = a2 * (1 / BornR_a - 1 / BornR0[1] + (THETA_a - 1) / Rsh_a)
-
-    self.g_PF = (np.abs(q2) * gamma1 + np.abs(q1) * gamma2) / (np.abs(q1) + np.abs(q2))  # array or scalar
 
 class ActF_2():  # Activity Formula 2 [P2(4.4)]
   def __init__(self, ActIn, ActIn_Mix):  # IS: array used by class ActF_2

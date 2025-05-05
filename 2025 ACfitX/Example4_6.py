@@ -1,21 +1,7 @@
 '''
-Author: Jinn-Liang Liu, Apr 6, 2025.
-
-For P2 Example 4.6 Fig 7A: Comparison of PFs: Profiles around La in LaCl3+MgCl2+H2O at T = 25 ◦C
-                   Fig 7B: ϵ_a, ϵ_b, ϵ_c in NaCl+H2O at 25, 300 ◦C
-
-Papers:
-P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
-    Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
-    Fluid Phase Equilibria 565, 113662 (2023)
-P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
-    Generalized Debye-Hückel theory of ion activities in mixed-salt and mixed-solvent electrolyte solutions, 2024.
-P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
-    SIAM J. Appl. Math. 80, 2003-2023 (2020).
-
-Jinn-Liang Liu's unpublished research notes:
-PF0:   A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, August 30, 2012
-PF1-4: 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 1-4), August 6, 2013 - November 11, 2022
+Author: Jinn-Liang Liu, May 5, 2025.
+Example 4.6 Fig 7A: Comparison of PFs: Profiles around La in LaCl3+MgCl2+H2O at T = 25 ◦C
+            Fig 7B: ϵ_a, ϵ_b, ϵ_c in NaCl+H2O at 25, 300 ◦C
 '''
 import numpy as np
 import matplotlib.pyplot as plt

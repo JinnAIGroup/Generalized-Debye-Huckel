@@ -1,8 +1,7 @@
 '''
-Author: Jinn-Liang Liu, Apr 20, 2025.
-For Example4_5.py
+Author: Jinn-Liang Liu, May 5, 2025.
+For Example 4.5
 '''
-
 import numpy as np
 
 V0 = 1.0

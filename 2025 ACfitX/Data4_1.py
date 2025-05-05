@@ -1,11 +1,9 @@
 '''
-Author: Jinn-Liang Liu, Jan 22, 2025.
-Data for ActGDH4_1, 4_2.py
+Author: Jinn-Liang Liu, May 5, 2025.
+For Example 4.1, 4.2
 '''
 import warnings
 import numpy as np
-
-from LSfit import AF_idx
 
 class DataFit():
   def __init__(self, salt):

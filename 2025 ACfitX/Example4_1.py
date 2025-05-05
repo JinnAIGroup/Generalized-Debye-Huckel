@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, Apr 7, 2025.
+Author: Jinn-Liang Liu, May 5, 2025.
 
 For P2 Example 4.1: LiCl, NaCl, NaBr in (H2O)x+(MeOH)1−x. Redo [P1F2,T2] for new [P2(4.4)]. [P1F2] = Fig 2 in P1 etc.
 
@@ -8,7 +8,7 @@ P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
     Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
     Fluid Phase Equilibria 565, 113662 (2023)
 P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
-    Generalized Debye-Hückel theory of ion activities in mixed-salt and mixed-solvent electrolyte solutions, 2024.
+    Generalized Debye-Hückel theory of electrolyte thermodynamics: I. Application, 2025.
 P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
     SIAM J. Appl. Math. 80, 2003-2023 (2020).
 
