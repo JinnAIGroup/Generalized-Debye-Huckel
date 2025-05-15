@@ -1,18 +1,12 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 
-Papers:
 P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
     Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
     Fluid Phase Equilibria 565, 113662 (2023)
 P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
     Generalized Debye-Hückel theory of electrolyte thermodynamics: I. Application, 2025.
-P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
-    SIAM J. Appl. Math. 80, 2003-2023 (2020).
-
-Jinn-Liang Liu's unpublished research notes:
-PF0:   A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, August 30, 2012
-PF1-4: 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 1-4), August 6, 2013 - November 11, 2022
+PF0: Jinn-Liang Liu, A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, Unpublished, August 30, 2012.
 '''
 import numpy as np
 import warnings
@@ -23,15 +17,15 @@ warnings.filterwarnings("ignore")
 class ActF_2():  # Activity Formula 2 [P2(3.5)]
   def __init__(self, ActIn, ActIn_Mix):  # IS: array used by class ActF_2
     (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
-     q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T) = ActIn
+     q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T) = ActIn
 
     (q5, q6, V5, V6, C5M, C6M) = ActIn_Mix[0]
     (q7, q8, V7, V8, C7M, C8M) = ActIn_Mix[1]
 
 
     kBTe = (kB * T / e) * 0.0001
-    S1 = 1000 * e / (4 * np.pi * kBTe * ϵ_0)
-    S2 = 0.1 * mol * e / (kBTe * ϵ_0)
+    S1 = 1000 * e / (4 * np.pi * kBTe * ϵ_0)  # scaling parameter [PF0(5.10)]
+    S2 = 0.1 * mol * e / (kBTe * ϵ_0)  # scaling parameter [PF0(5.12)]
     C2M = -q1 * C1M / q2  # array
 
     BornR_c = theta * BornR0[0]
@@ -109,10 +103,10 @@ class ActF_2():  # Activity Formula 2 [P2(3.5)]
     a1 = q1 * q1 * e * e / (8 * np.pi * ϵ_0 * ϵ_s_x_I * kB * T) * (10 ** 7)
     a2 = q2 * q2 * e * e / (8 * np.pi * ϵ_0 * ϵ_s_x_I * kB * T) * (10 ** 7)
 
-    gamma1 = a1 * ( 1 / BornR_c + (THETA4_c / THETA3_c - 1) / Rsh_c \
-           - 2 * np.exp(-BornR_c / Lcorr) * THETA1_c / THETA3_c / Lcorr - 1 / BornR0[0] )  # [P2(3.5)] array
-    gamma2 = a2 * ( 1 / BornR_a + (THETA4_a / THETA3_a - 1) / Rsh_a \
-           - 2 * np.exp(-BornR_a / Lcorr) * THETA1_a / THETA3_a / Lcorr - 1 / BornR0[1] )
+    gamma1 = a1 * ( 1 / BornR_c + (THETA4_c / THETA3_c - 1) / Rsh_c - 2 * np.exp(-BornR_c / Lcorr) \
+           * THETA1_c / THETA3_c / Lcorr - 1 / (BornR0[0] * ϵ_s_x / ϵ_s_x_I) )  # [P2(3.5)] array
+    gamma2 = a2 * ( 1 / BornR_a + (THETA4_a / THETA3_a - 1) / Rsh_a - 2 * np.exp(-BornR_a / Lcorr) \
+           * THETA1_a / THETA3_a / Lcorr - 1 / (BornR0[1] * ϵ_s_x / ϵ_s_x_I) )
 
     g_PF = (np.abs(q2) * gamma1 + np.abs(q1) * gamma2) / (np.abs(q1) + np.abs(q2))  # [P2(3.6)] array
 

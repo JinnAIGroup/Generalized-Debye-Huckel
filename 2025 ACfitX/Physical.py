@@ -1,5 +1,15 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
+
+P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
+    Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
+    Fluid Phase Equilibria 565, 113662 (2023)
+P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
+    Generalized Debye-Hückel theory of electrolyte thermodynamics: I. Application, 2025.
+P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
+    SIAM J. Appl. Math. 80, 2003-2023 (2020).
+PF0: Jinn-Liang Liu, A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, Unpublished, August 30, 2012.
+PF4: Jinn-Liang Liu, 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 4), Unpublished, March 6, 2019 - 2025
 
 [Bar85] Barthel, J., et al. (1985). Vapor pressures of non-aqueous electrolyte
         solutions. Part 1. Alkali metal salts in methanol. Journal of solution chemistry, 14, 621-633.
@@ -135,7 +145,7 @@ def Born(salt = None, ϵ_s_x = None, x = None, T = None):
   return BornR0, q1, q2, p1, p2, V1, V2, mM, DG
 
 
-def m2M(m = None, mM = None, DG = None, x = None, T = None):  # [PF4T3.82A]
+def m2M(m = None, mM = None, DG = None, x = None, T = None):  # molality to Molarity [PF4T3.82A]
     # 0.9971 = density of water [P1T1]
     # 0.9128 = density of 50-50 water-methanol mixture
     # 0.7866 = density of methanol [PF4T3.82A] = 0.7863 [Bar85]

@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 For Example 4.5
 '''
 import numpy as np
@@ -53,7 +53,7 @@ def Newton2(phi, NtIn, ActIn_Mix):  # [PF3P85(34)] Given phi, find steric
 
 class Profile():  # Given Q, find various function profiles
   def __init__(self, ActInC, ActIn_Mix, LsP, THETA, p_In):  # all input variables are scalars
-    (theta, BornR0, Rsh_c, C1M, C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x_I, T) = ActInC
+    (theta, BornR0, Rsh_c, C1M, C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x, ϵ_s_x_I, T) = ActInC
     (q5, q6, V5, V6, C5M, C6M) = ActIn_Mix[0]
     (q7, q8, V7, V8, C7M, C8M) = ActIn_Mix[1]
     (ϵ_s_x, GammaB, lambda1, lambda2, LDebye, Lcorr) = LsP
@@ -96,6 +96,7 @@ class Profile():  # Given Q, find various function profiles
 
     for i in range( N ):
       if rL[i] <= BornR_c:
+        if rL[i] > BornR_c - DL: IdxBorn = i
         A = 1 / BornR_c + (THETA4_c / THETA3_c - 1) / Rsh_c - 2 * np.exp(-BornR_c / Lcorr) * THETA1_c / THETA3_c / Lcorr
           #if A.imag != 0: print('A.imag:', A.imag)  # Yes A.imag != -4.35e-19
         eltr[i] = S1 * Q * A.real / ϵ_s_x_I  # [P2(3.1a)]
@@ -148,7 +149,7 @@ class Profile():  # Given Q, find various function profiles
     GammaB_0 = 1 - (V3 * C3M) / S2 / 1660.5655  # C3M at I = 0
     ster_hat = np.log(Gamma_hat/GammaB_0)
     C3M_hat = C3M * np.exp(-ster_hat)  # [P2(2.7)]
-    print(' --- IdxSh, GammaB, GammaB_0, Gamma_hat:', IdxSh, np.around(GammaB, 2), np.around(GammaB_0, 2), np.around(Gamma_hat, 2))
+    print(' --- IdxBorn, IdxSh, GammaB, GammaB_0, Gamma_hat:', IdxBorn, IdxSh, np.around(GammaB, 2), np.around(GammaB_0, 2), np.around(Gamma_hat, 2))
     print(' --- ster_Sh, ster_hat, C3M, C3M_hat:', np.around(ster_Sh, 2), np.around(ster_hat, 2), np.around(C3M / S2, 2), np.around(C3M_hat / S2, 2))
     V_sh = 4 * np.pi * (Rsh_c ** 3) / 3 - V1
     N_H2O_0 = C3M / S2 / 1660.5655 * V_sh

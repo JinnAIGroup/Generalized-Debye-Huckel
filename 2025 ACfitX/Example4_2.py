@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 Example 4.2: NaCl in [NaCl+NaBr] or [NaCl+NaBr+NaF] + [(H2O)x+(MeOH)(1−x)].
 '''
 import numpy as np
@@ -53,7 +53,7 @@ Rsh_c, Rsh_a = R_ca, R_ca
 
 # LSfit() returns g_fit as the best fit to g_data with alpha_1, 2, 3 [P1(14)] by Least Squares.
 LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-        q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 LfOut = LSfit(LfIn)
 
 g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
@@ -85,7 +85,7 @@ R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 Rsh_c, Rsh_a = R_ca, R_ca
 
 LfIn = (g_dataY, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-        q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 LfOut = LSfit(LfIn)
 
 alphaY = LfOut.alpha
@@ -144,7 +144,7 @@ for Mix_i in range(2):
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
       g_predX_Mix1 = g_predX_Mix1 + (ActOut.g_PF, )  # Predicted results
@@ -184,7 +184,7 @@ for Mix_i in range(2):
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
       g_predX_Mix2 = g_predX_Mix2 + (ActOut.g_PF, )  # Predicted results

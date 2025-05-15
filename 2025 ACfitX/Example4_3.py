@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 Example 4.3: 1-salt (LiCl), 2-salt (LiCl+MgCl2), 3-salt (LiCl+MgCl2+LaCl3) in H2O.
 '''
 import numpy as np
@@ -57,7 +57,7 @@ for salt in Salts:
 
   # LSfit() returns g_fit as the best fit to g_data with alpha_i [P1(14)] by Least Squares.
   LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-          q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+          q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
 
   g_fit, alpha, theta_all = LfOut.g_fit, LfOut.alpha, LfOut.theta_all  # fitted results
@@ -168,7 +168,7 @@ for salt in Salts:
 
     alphaX = alpha[0]  # add alphaX to LfIn and get LfInX
     LfInX = (g_data_X, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS_X, DF.C1m, \
-             q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T, alphaX, ActIn_Mix)
+             q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix)
 
     LfOut = LSfitX(LfInX)  # input: g_data_X and fixed alpha[0]; output: alpha[1], ...
     alpha_X = LfOut.alpha

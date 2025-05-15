@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 Example 4.5 Fig 6A: Profiles around La in LaCl3+MgCl2+H2O at T = 25 ◦C
             Fig 6B: More Profiles
 '''
@@ -57,7 +57,7 @@ for salt in Salts:
     N_H2O_max = V_sh / V3  # max solvation water number (no void)
 
     LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-            q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+            q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
     LfOut = LSfit(LfIn)
 
     g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
@@ -118,7 +118,7 @@ for salt in Salts:
 
     alphaX = alpha[0]  # add alphaX to LfIn and get LfInX
     LfInX = (g_data_X, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS_X, DF.C1m, \
-             q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T, alphaX, ActIn_Mix)
+             q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix)
 
     LfOut = LSfitX(LfInX)  # input: g_data_X and fixed alpha[0]; output: alpha[1], ...
     alpha_X = LfOut.alpha
@@ -126,7 +126,7 @@ for salt in Salts:
     theta = 1 + alpha_X[0] * (IS_X ** 0.5) + alpha_X[1] * IS_X + alpha_X[2] * (IS_X ** 1.5) + alpha_X[3] * (IS_X ** 2) + alpha_X[4] * (IS_X ** 2.5)
 
     ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS_X, DF.C1m, \
-             q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+             q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
     ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
     print(' Fig6A Mix: g_PF[-1], g_data_X[-1], BornR_c[0], Rsh_c[0], N_H2O_max[0]:', np.around(ActOut.g_PF[-1], 2), np.around(g_data_X[-1], 2), np.around(theta[0] * BornR0[0], 2), np.around(Rsh_c[0], 2), np.around(N_H2O_max[0], 2))
@@ -137,7 +137,7 @@ for salt in Salts:
     (GammaB, lambda1, lambda2, LDebye, LBjerrum, Lcorr) = ActOut.Ls
     (THETA1, THETA2, THETA3, THETA4) = ActOut.THETA
 
-    ActInC = (theta[-1], BornR0, Rsh_c[-1], C1M[-1], C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x_I[-1], T)  # Cut ActIn
+    ActInC = (theta[-1], BornR0, Rsh_c[-1], C1M[-1], C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x, ϵ_s_x_I[-1], T)  # Cut ActIn
     ActIn_M1 = (q5, q6, V5, V6, C5M[-1], C6M[-1])
     ActIn_M2 = (0,0,0,0,0,0)
     ActIn_Mix = (ActIn_M1, ActIn_M2)
@@ -153,9 +153,9 @@ for salt in Salts:
 plt.figure(1)
 plt.subplot(a, b, c)
 
-plt.plot(Pf.rL, Pf.eltr / 5, 'r-', label='$\phi(r)/5$ in $k_B T / e$')
-plt.plot(Pf.rL, Pf.ditr / 5, 'b.', label='$\~{\epsilon}_s(r)$/5')
-plt.plot(Pf.rL[12:], Pf.ster[12:] * 5, 'g+', label='$5S(r)$')
+plt.plot(Pf.rL, Pf.eltr, 'r-', label='$\phi(r)$ in $k_B T / e$')
+plt.plot(Pf.rL, Pf.ditr / 10, 'b.', label='$\~{\epsilon}_s(r)$/10')
+plt.plot(Pf.rL[23:], Pf.ster[23:] * 5, 'g+', label='$5S(r)$')
 plt.title('(A) Potential Profiles in LaCl$_3$+MgCl$_2$+H$_2$O', fontsize=12)
 plt.xlabel('Distance from the center of La$^{3+}$ in Angstrom', fontsize=12)
 plt.ylabel('Electric, Steric, and Dielectric Functions', fontsize=12)
@@ -168,11 +168,11 @@ c = c + 1
 plt.figure(1)
 plt.subplot(a, b, c)
 
-plt.plot(Pf.rL[12:], Pf.solv[12:] / 10, 'b+', label='$C_{H_2O}(r)$/10 in M')
+plt.plot(Pf.rL[23:], Pf.solv[23:] / 10, 'b+', label='$C_{H_2O}(r)$/10 in M')
 plt.plot(Pf.rL[26:], (Pf.ionA[26:] + Pf.ion6[26:]) / 5, 'go', label='$C_{Cl^{-}}(r)$/5 in M')
 plt.plot(Pf.rL[26:], Pf.ionC[26:], 'r-', label='$C_{La^{3+}}(r)$ in M')
 plt.plot(Pf.rL[26:], Pf.ion5[26:], 'k.', label='$C_{Mg^{2+}}(r)$ in M')
-plt.plot(Pf.rL[12:], -Pf.psi[12:], 'g--', label=r'$-\psi(r)$ in $e$M')
+plt.plot(Pf.rL[23:], -Pf.psi[23:], 'g--', label=r'$-\psi(r)$ in $e$M')
 plt.title('(B) Concentration Profiles in LaCl$_3$+MgCl$_2$+H$_2$O', fontsize=12)
 plt.xlabel('Distance from the center of La$^{3+}$ in Angstrom', fontsize=12)
 plt.ylabel('Water, Ion, and Polarization Density Functions', fontsize=12)

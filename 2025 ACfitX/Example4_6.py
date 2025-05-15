@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 Example 4.6 Fig 7A: Comparison of PFs: Profiles around La in LaCl3+MgCl2+H2O at T = 25 ◦C
             Fig 7B: ϵ_a, ϵ_b, ϵ_c in NaCl+H2O at 25, 300 ◦C
 '''
@@ -59,7 +59,7 @@ for salt in Salts:
       Rsh_c, Rsh_a = R_ca, R_ca
 
       LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-              q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+              q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
       LfOut = LSfit(LfIn)
 
       g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
@@ -116,7 +116,7 @@ for salt in Salts:
 
       alphaX = alpha[0]  # add alphaX to LfIn and get LfInX
       LfInX = (g_data_X, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS_X, DF.C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T, alphaX, ActIn_Mix)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix)
 
       LfOut = LSfitX(LfInX)  # input: g_data_X and fixed alpha[0]; output: alpha[1], ...
       alpha_X = LfOut.alpha
@@ -125,7 +125,7 @@ for salt in Salts:
       print(" RBorn_c[0], Rsh_c[0], IS[0] =", np.around(BornR0[0] * theta[0], 2), np.around(Rsh_c[0], 2), np.around(IS[0], 2))  # for Remark 4.4 in 2ndGDH.tex
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS_X, DF.C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
 
@@ -134,7 +134,7 @@ for salt in Salts:
       (GammaB, lambda1, lambda2, LDebye, LBjerrum, Lcorr) = ActOut.Ls
       (THETA1, THETA2, THETA3, THETA4) = ActOut.THETA
 
-      ActInC = (theta[-1], BornR0, Rsh_c[-1], C1M[-1], C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x_I[-1], T)  # Cut ActIn
+      ActInC = (theta[-1], BornR0, Rsh_c[-1], C1M[-1], C3M, C4M, q1, q2, V1, V2, V3, ϵ_s_x, ϵ_s_x_I[-1], T)  # Cut ActIn
       ActIn_M1 = (q5, q6, V5, V6, C5M[-1], C6M[-1])
       ActIn_M2 = (0,0,0,0,0,0)
       ActIn_Mix = (ActIn_M1, ActIn_M2)
@@ -188,7 +188,7 @@ for salt in Salts:
 
       if T_i == 0:  # Fig 6B at 298.15
         LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-                q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
         LfOut = LSfit(LfIn)
         alpha = LfOut.alpha
@@ -197,7 +197,7 @@ for salt in Salts:
         theta = alpha[0]
 
         ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
-                 q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                 q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
         ActIn_M1 = (0,0,0,0,0,0)
         ActIn_M2 = (0,0,0,0,0,0)
         ActIn_Mix = (ActIn_M1, ActIn_M2)
@@ -219,14 +219,14 @@ for salt in Salts:
 
       elif T_i == 4:  # Fig 6A at 573.15
         LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-                q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
         LfOut = LSfit(LfIn)
 
         g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
         print(" alpha =", np.around(alpha, 5), salt, T)
 
         ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
-                 q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                 q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
         ActIn_M1 = (0,0,0,0,0,0)
         ActIn_M2 = (0,0,0,0,0,0)
         ActIn_Mix = (ActIn_M1, ActIn_M2)
@@ -254,10 +254,10 @@ for salt in Salts:
 # Plot Fig7A
 plt.figure(1)
 plt.subplot(a, b, c)
-plt.plot(Pf.rL, Pf.eltr / 5, 'r-', label='$\phi^{4PF}(r)/5$ in $k_B T / e$')
-plt.plot(Pf.rL, Pf.eltr_2PF / 5, 'b--', label='$\phi^{2PF}(r)/5$ in $k_B T / e$')
-plt.plot(Pf.rL, Pf.eltr_PB / 5, 'g+', label='$\phi^{PB}(r)/5$ in $k_B T / e$')
-plt.plot(Pf.rL[26:], Pf.rho[26:] / 3, 'r.', label=r'$\rho^{4PF}(r)$/3 in $e$M')  # we need r'' for \rho
+plt.plot(Pf.rL, Pf.eltr, 'r-', label='$\phi^{4PF}(r)$ in $k_B T / e$')
+plt.plot(Pf.rL, Pf.eltr_2PF, 'b--', label='$\phi^{2PF}(r)$ in $k_B T / e$')
+plt.plot(Pf.rL, Pf.eltr_PB, 'g+', label='$\phi^{PB}(r)$ in $k_B T / e$')
+plt.plot(Pf.rL[26:], Pf.rho[26:] / 6, 'r.', label=r'$\rho^{4PF}(r)$/6 in $e$M')  # we need r'' for \rho
 plt.plot(Pf.rL[26:], Pf.rho_2PF[26:] / 6, 'b*', label=r'$\rho^{2PF}(r)$/6 in $e$M')  # we need r'' for \rho
 plt.plot(Pf.rL[26:], Pf.rho_PB[26:] / 60, 'gx', label=r'$\rho^{PB}(r)$/60 in $e$M')  # we need r'' for \rho
 plt.title('(A) Comparison of 4PF, 2PF, and PB Models', fontsize=12)

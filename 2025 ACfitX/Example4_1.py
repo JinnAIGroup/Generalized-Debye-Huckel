@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 
 For P2 Example 4.1: LiCl, NaCl, NaBr in (H2O)x+(MeOH)1−x.
 
@@ -9,12 +9,6 @@ P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
     Fluid Phase Equilibria 565, 113662 (2023)
 P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
     Generalized Debye-Hückel theory of electrolyte thermodynamics: I. Application, 2025.
-P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
-    SIAM J. Appl. Math. 80, 2003-2023 (2020).
-
-Jinn-Liang Liu's unpublished research notes:
-PF0:   A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, August 30, 2012
-PF1-4: 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 1-4), August 6, 2013 - November 11, 2022
 '''
 import numpy as np
 import matplotlib.pyplot as plt
@@ -70,7 +64,7 @@ for salt in Salts:
 
   # LSfit() returns g_fit as the best fit to g_data with alpha_i [P1(14)] by Least Squares.
   LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-          q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+          q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
 
   g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
@@ -106,15 +100,15 @@ for salt in Salts:
   Rsh_c, Rsh_a = R_ca, R_ca
 
   LfIn = (g_dataY, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-          q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+          q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
 
   alphaY = LfOut.alpha
   alphaD = alphaY - alpha
 
   AAD2 = np.mean(np.abs(LfOut.g_fit - g_dataY))
-  print(" alphaY, AAD2% =", np.around(alphaY, 5), np.around(AAD2*100, 2))
-  print(" alphaD =", np.around(alphaD, 5))
+  print(" alphaY =", np.around(alphaY, 5))
+  print(" alphaD, AAD2% =", np.around(alphaD, 5), np.around(AAD2*100, 2))
   g_predX, plot_thetaX = (), ()
 
   # Part 3: Mix-Solvent Predicting ...
@@ -149,7 +143,7 @@ for salt in Salts:
     alpha_x = alpha + x * alphaD
     theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
     ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
-             q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+             q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
     ActIn_M1 = (0,0,0,0,0,0)  # for mix-salt 1
     ActIn_M2 = (0,0,0,0,0,0)  # for mix-salt 2

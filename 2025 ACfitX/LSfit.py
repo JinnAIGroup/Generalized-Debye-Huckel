@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, May 12, 2025.
 '''
 import numpy as np
 
@@ -9,10 +9,10 @@ Activity = ActF_2
 deviate, ErrTol = 0.0001, 0.008
 
 
-class LSfit():  # input: g_data; output: LS g_fit and alpha[0], [1], [2], [3]
+class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
   def __init__(self, LfIn):
     (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
-     q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T) = LfIn
+     q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T) = LfIn
 
     N = len(C1M)
     Nc = int( N * (N - 1) * (N - 2) * (N - 3) * (N - 4) / (24 * 5) )  # total combinations for finding alpha[i]
@@ -28,7 +28,7 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], [1], [2], [3]
       while np.abs(g_fit_k - g_data[k]) > ErrTol and theta > 0 and theta < 2:  # tune ErrTol for better self.alpha
         theta = theta + ((-1) ** n) * (deviate * n)
         ActIn = (theta, BornR0, Rsh_c[k], Rsh_a[k], C1M[k], C3M, C4M, IS, C1m, \
-                 q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                 q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
         ActOut = Activity(ActIn, ActIn_Mix)  # Given theta, Activity() returns a mean activity.
         g_fit = ActOut.g_PF
@@ -69,7 +69,7 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], [1], [2], [3]
       theta = 1 + ALPHA[i][0] * (IS ** 0.5) + ALPHA[i][1] * IS + ALPHA[i][2] * (IS ** 1.5) \
                 + ALPHA[i][3] * (IS ** 2)   + ALPHA[i][4] * (IS ** 2.5)
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
       g_fit_all[i, :] = ActOut.g_PF  # ComplexWarning: Casting complex values to real discards the imaginary part
@@ -93,10 +93,10 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], [1], [2], [3]
     self.g_fit = g_fit_all[idx,:]
 
 
-class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output: LS alpha[1], [2]
+class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output: LS alpha[1], ..., [4]
   def __init__(self, LfInX):  # add alphaX to LfIn and get LfInX for fixing alpha[0]
     (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
-     q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T, alphaX, ActIn_Mix) = LfInX
+     q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix) = LfInX
 
     N = len(C1M)
     Nc = int( N * (N - 1) * (N - 2) * (N - 3) * (N - 4) / (24 * 5) )  # total combinations for finding (alpha[0], [1], [2], [3], [4])
@@ -108,7 +108,7 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
       while np.abs(g_fit_k - g_data[k]) > ErrTol and theta > 0 and theta < 2:  # tune ErrTol for better self.alpha
         theta = theta + ((-1) ** n) * (deviate * n)
         ActIn = (theta, BornR0, Rsh_c[k], Rsh_a[k], C1M[k], C3M, C4M, IS, C1m, \
-                 q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+                 q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
         # Given theta, Activity() returns a mean activity.
         ActOut = Activity(ActIn, ActIn_Mix)
@@ -153,7 +153,7 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
       if any(abs(theta) > 100): theta = theta / 10
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
-               q1, q2, V1, V2, V3, V4, ϵ_s_x_I, T)
+               q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
       g_fit_all[i, :] = ActOut.g_PF  # ComplexWarning: Casting complex values to real discards the imaginary part
