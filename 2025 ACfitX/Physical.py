@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
+Author: Jinn-Liang Liu, June 26, 2025.
 
 P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
     Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
@@ -9,7 +9,7 @@ P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
 P3: Chin-Lung Li, Jinn-Liang Liu, Generalized Debye-Hückel equation from Poisson-Bikerman theory,
     SIAM J. Appl. Math. 80, 2003-2023 (2020).
 PF0: Jinn-Liang Liu, A 3D Poisson-Nernst-Planck Solver for Modeling Biological Ion Channels, Unpublished, August 30, 2012.
-PF4: Jinn-Liang Liu, 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Modeling (Part 4), Unpublished, March 6, 2019 - 2025
+PF4: Jinn-Liang Liu, 3D Poisson-Nernst-Planck-Fermi Solvers for Biological Modeling (Part 4), Unpublished, June 25, 2025.
 
 [Bar85] Barthel, J., et al. (1985). Vapor pressures of non-aqueous electrolyte
         solutions. Part 1. Alkali metal salts in methanol. Journal of solution chemistry, 14, 621-633.
@@ -28,11 +28,11 @@ PF4: Jinn-Liang Liu, 3D Poisson-Fermi-Nernst-Planck Solvers for Biological Model
 '''
 import numpy as np
 
-c = 0.71
-# Verify 'NaCl': DG = 58.44 * c = 41.49 < 45. < 46.62 => not very precise => but in DG * m / 1000 => OK apprx.
+c = 0.71  # DG = c ME: by ME (Molecular Weight) if DG (density gradient) [P1T1] not available
+# [Bar85TableII] => DG = c ME => find c by TableII
+# Verify 'NaCl': DG = c * 58.44 = 41.49 ~= 46.62 => OK apprx.
 
-#--- Physical Constants [P1T1]
-ϵ_0, e, mol, kB = 8.854187, 1.6022, 6.022045, 1.380649
+ϵ_0, e, mol, kB = 8.854187, 1.6022, 6.022045, 1.380649  # Physical Constants [P1T1]
 
 def Solvent(x = None, T = None):  # x = 0: H2O, x = 1: MeOH
   kBTe = (kB * T / e) * 0.0001
@@ -49,18 +49,17 @@ def Solvent(x = None, T = None):  # x = 0: H2O, x = 1: MeOH
   elif T == 523.15: d_H2O = 44.30  # 250 ◦C
   elif T == 573.15: d_H2O = 40.24  # 300 ◦C
 
-  ewT1 = -19.2905 + 29814.5 / T - 0.019678 * T + 1.3189 * 1e-4 * T ** 2 - 3.1144 * 1e-7 * T ** 3  # New1 Eq12[Sil23]
+  ewT1 = -19.2905 + 29814.5 / T - 0.019678 * T + 1.3189 * 1e-4 * T ** 2 - 3.1144 * 1e-7 * T ** 3  # Eq12[Sil23]
 
-  beta1, delta = 3.1306, 8.33  # New2 Eq15[Sil23], [PF4Ex3.88]
+  beta1, delta = 3.1306, 8.33  # Eq15[Sil23], [PF4Ex3.88]
   eTf  = beta1 * mol * 10 * (delta ** 2) / (2 * ϵ_0 * kB)
   eT0  = eTf * (55.50 / 273.15)
-  ew0  = 87.71  # by hand, 87.98 by New1 Eq12[Sil23]
-  ewT2 = ew0 + eTf * (d_H2O / T - 55.50 / 273.15)  # New2 Eq15[Sil23], [PF4Ex3.88]
+  ew0  = 87.71  # by hand, 87.98 by Eq12[Sil23]
+  ewT2 = ew0 + eTf * (d_H2O / T - 55.50 / 273.15)  # Eq15[Sil23], [PF4Ex3.88]
 
   C3M = (1 - x) * d_H2O  # in M
   C4M = x * 24.55  # [PF4T3.82A]
-    #ϵ_s_x = (1 - x) * ewT1 + x * 32.66  # New1 Eq12[Sil23]
-  ϵ_s_x = (1 - x) * ewT2 + x * 32.66  # New2 Eq15[Sil23]
+  ϵ_s_x = (1 - x) * ewT2 + x * 32.66  # Eq15[Sil23]
 
   C3M, C4M = C3M * S2, C4M * S2  # unitless
   pH2O, pMeOH = 1.62, 1.32  # polarizability [P2T1]
@@ -71,10 +70,10 @@ def Solvent(x = None, T = None):  # x = 0: H2O, x = 1: MeOH
 def Born(salt = None, ϵ_s_x = None, x = None, T = None):
   if salt == 'NaF':
     q1, q2 = 1, -1
-    p1, p2 = 0.279, 1.144  # [P1T1]
+    p1, p2 = 0.279, 1.144  # [P2T1]
     V1 = 4 * np.pi * 0.95 ** 3 / 3  # [P1T1]
     V2 = 4 * np.pi * 1.36 ** 3 / 3
-    mM, DG = 41.99, 41.38  # Google = [P1T1] mM: Molar mass, [P1T1] DG: Density Gradient
+    mM, DG = 41.99, 41.38  # [P1T1] mM: Molar mass, [P1T1] DG: Density Gradient
     FcatH2O, FcatMeOH = -101.3, -91.9   # -424 [Val15], [Pli13]=[PF4T3.82B] at T=298.15
     FanH2O,  FanMeOH  = -102.5, -109.2  # -429 [Val15], [Pli13]
   elif salt == 'NaCl':
@@ -110,7 +109,7 @@ def Born(salt = None, ϵ_s_x = None, x = None, T = None):
     FcatH2O, FcatMeOH = -461.52, -(1931.+2.)/4.184  # -1931 [Val15], 2 [Kal00Table5]
       # Verify Na+: 8.2 [Mar88TableI] ~= 7.2 [Kal00Table5]
     FanH2O,  FanMeOH  = -72.7, -81.1  # -304 [Val15], [Pli13]
-      # Verify: [Mar88TableI]: -304-13.2 = -317.2/4.184 = -75.81 > -81.1
+      # Verify: [Mar88TableI]: -304-13.2 = -317.2/4.184 = -75.81 ~= -81.1
   elif salt == 'CaCl2':
     q1, q2 = 2, -1
     p1, p2 = 0.588, 3.253
@@ -122,7 +121,6 @@ def Born(salt = None, ϵ_s_x = None, x = None, T = None):
   elif salt == 'LaCl3':
     q1, q2 = 3, -1
     p1, p2 = 4.45, 3.253
-    #p1, p2 = 3.73, 3.253  # 3.73 = 4.45 * (3.253/3.88) [PF4Ex3.88]
     V1 = 4 * np.pi * 1.05 ** 3 / 3  # [P3P13]
     V2 = 4 * np.pi * 1.81 ** 3 / 3
     mM, DG = 110.98, 110.98 * c  # [PF4T3.78A],

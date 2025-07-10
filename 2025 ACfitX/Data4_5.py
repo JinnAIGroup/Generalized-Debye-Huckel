@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
+Author: Jinn-Liang Liu, June 24, 2025.
 For Example 4.5, 4.6
 '''
 import warnings
@@ -21,5 +21,10 @@ class DataFit():
       Ts = [298.15]
       self.lngamma = np.zeros((len(Ts), len(self.C1m)), dtype='float32')
       self.lngamma[0] = np.array([-1.121, -1.309, -1.309, -1.121, -0.983, -0.528, -0.147, 0.828, 1.565])
+    elif salt == 'MgCl2':
+      self.C1m = np.array([0.1, 0.2, 0.5, 0.7, 1, 1.6, 2,	3, 4])
+      Ts = [298.15]
+      self.lngamma = np.zeros((len(Ts), len(self.C1m)), dtype='float32')
+      self.lngamma[0] = np.array([-0.633,	-0.716,	-0.716,	-0.623,	-0.512,	-0.234,	0.116, 0.912, 1.805])
     else:
       warnings.warn('Warning: No data for this salt.')

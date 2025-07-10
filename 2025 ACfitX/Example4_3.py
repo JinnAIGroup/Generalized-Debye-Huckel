@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
+Author: Jinn-Liang Liu, July 10, 2025.
 Example 4.3: 1-salt (LiCl), 2-salt (LiCl+MgCl2), 3-salt (LiCl+MgCl2+LaCl3) in H2O.
 '''
 import numpy as np
@@ -11,19 +11,19 @@ from Data4_3 import DataFit
 from LSfit import LSfit, Activity, LSfitX
 
 # Solution Parameters:
-#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x: mixing percentage of 3 and 4 in [0, 1]
+#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
-#   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
+#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
 
 T, Z = 298.15, 0.68
 
-S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)  # x=0 for pure H2O
+S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
 
-np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
+np.set_printoptions(suppress=True)
 plt.figure(figsize=(13,8))
-a, b, c = 1, 3, 1  # subplot(a, b, c): rows, columns, counter
+a, b, c = 1, 3, 1
 
 Salts = ['LiCl', 'MgCl2', 'LaCl3']
 #Salts = ['LaCl3']
@@ -31,17 +31,15 @@ Salts = ['LiCl', 'MgCl2', 'LaCl3']
 for salt in Salts:
   # Part 1: Fiting ...
 
-  # Born Radius: BornR0 in pure solvent (no salt) [P1(12)(13)]
   BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)
 
-  DF = DataFit(salt)  # data to fit
-  g_data = DF.lngamma  # gamma: mean activity, ln: log
+  DF = DataFit(salt)
+  g_data = DF.lngamma  # ln gamma
 
-  # Salt molality (m) to Molarity (M): C1m (array) to C1M
-  C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # 0 for H2O
-  C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
+  C1M = m2M(DF.C1m, mM, DG, 0, T) * S2
+  C2M = -q1 * C1M / q2
 
-  IS = 0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
+  IS = 0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
   numPW = C3M * pH2O
   numPI = C1M * p1 + C2M * p2
   numPWI = numPW + numPI
@@ -55,7 +53,6 @@ for salt in Salts:
   R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
   Rsh_c, Rsh_a = R_ca, R_ca
 
-  # LSfit() returns g_fit as the best fit to g_data with alpha_i [P1(14)] by Least Squares.
   LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
           q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
@@ -183,7 +180,7 @@ for salt in Salts:
     g_pred_Mix = g_pred_Mix + (g_data_X, )
     C1m_X_Mix = C1m_X_Mix + (C1m_X, )
 
-  # Plot predicted results
+  # Plot Fig 4
   plt.figure(1)
   plt.subplot(a, b, c)
   plt.plot(DF.C1m, g_data, 'k.')

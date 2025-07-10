@@ -1,9 +1,10 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
+Author: Jinn-Liang Liu, July 10, 2025.
 Example 4.2: NaCl in [NaCl+NaBr] or [NaCl+NaBr+NaF] + [(H2O)x+(MeOH)(1−x)].
 '''
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 from Physical import Solvent, Born, m2M
 from Data4_1 import DataFit, DataPredict
@@ -13,13 +14,13 @@ from LSfit import LSfit, Activity
 #   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
-#   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
+#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
 
 T, Z = 298.15, 0.68
-np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
+np.set_printoptions(suppress=True)
 plt.figure(figsize=(13,8))
-a, b, c = 1, 2, 1  # subplot(a, b, c): rows, columns, counter
+a, b, c = 1, 2, 1
 
 salt = 'NaCl'
 
@@ -27,17 +28,15 @@ salt = 'NaCl'
 
 S2, C3M, C4M, V3, V4, pH2O, pMeOH, ϵ_s_x = Solvent(0, T)  # x=0 for pure H2O
 
-# Born Radius: BornR0 in pure solvent (no salt) [P1(12), (13)]
 BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)  # for H2O
 
-DF = DataFit(salt)  # pure-H2O activity data to be fitted
-g_data = np.log(DF.gamma)  # gamma: mean activity [P1(16)]
+DF = DataFit(salt)
+g_data = np.log(DF.gamma)
 
-# Salt molality (m) to Molarity (M): C1m (array) to C1M
-C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # for H2O
-C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
+C1M = m2M(DF.C1m, mM, DG, 0, T) * S2
+C2M = -q1 * C1M / q2
 
-IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
+IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
 numPW = C3M * pH2O
 numPI = C1M * p1 + C2M * p2
 numPWI = numPW + numPI
@@ -51,23 +50,37 @@ X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
 R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 Rsh_c, Rsh_a = R_ca, R_ca
 
-# LSfit() returns g_fit as the best fit to g_data with alpha_1, 2, 3 [P1(14)] by Least Squares.
 LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
         q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 LfOut = LSfit(LfIn)
 
 g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
 
+AAD1 = np.mean(np.abs(g_fit - g_data))
+print(" alpha, AAD1% =", np.around(alpha, 5), np.around(AAD1*100, 2), salt)
+
 # Part 2: MeOH Fiting for alphaD ...
 
-DP = DataPredict(salt)  # miXed-solvent activity data to be compared with predicted results
+DP = DataPredict(salt)
 g_dataX, mixNo, C1mX = DP.g_dataX, DP.mixNo, DP.C1mX
 
-x, C1m_x, g_dataY = 0.2, C1mX[0], np.log(g_dataX[0])
+xhat, C1m_xhat_1, g_data_xhat_1 = 0.4, C1mX[1], np.log(g_dataX[1])
+# extrapolate C1mX[1] to C1mX[0]
+C1M = m2M(C1mX[1], mM, DG, 0.4, T) * S2
+C2M = -q1 * C1M / q2
+IS = 0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
+C1M_X = m2M(C1mX[0], mM, DG, 0.2, T) * S2
+C2M_X = -q1 * C1M_X / q2
+IS_X = 0.5 * (C1M_X * q1 ** 2 + C2M_X * q2 ** 2)
+ISX0 = IS[0] if IS[0] < IS_X[0] else IS_X[0]
+IS_X = np.linspace(ISX0, IS_X[-1], num=len(IS_X))
+Spline = InterpolatedUnivariateSpline(IS, g_data_xhat_1, k=1)  # k: spline order 1 (linear), 2, ...
+g_data_xhat = Spline(IS_X)  # eXtrapolation
+C1m_xhat = IS_X * C1mX[0][-1] / IS_X[-1]  # interpolation
 
-_, C3M, C4M, _, _, _, _, ϵ_s_x = Solvent(x, T)
-BornR0, _, _, _, _, _, _, _, _ = Born(salt, ϵ_s_x, x, T)
-C1M = m2M(C1m_x, mM, DG, x, T) * S2
+_, C3M, C4M, _, _, _, _, ϵ_s_x = Solvent(xhat, T)
+BornR0, _, _, _, _, _, _, _, _ = Born(salt, ϵ_s_x, xhat, T)
+C1M = m2M(C1m_xhat, mM, DG, xhat, T) * S2
 C2M = -q1 * C1M / q2
 
 IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
@@ -84,16 +97,16 @@ X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
 R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 Rsh_c, Rsh_a = R_ca, R_ca
 
-LfIn = (g_dataY, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
+LfIn = (g_data_xhat, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m_xhat, \
         q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 LfOut = LSfit(LfIn)
 
-alphaY = LfOut.alpha
-alphaD = alphaY - alpha
+g_fit_xhat, alpha_xhat = LfOut.g_fit, LfOut.alpha
+alphaD = alpha_xhat - alpha
 
-AAD = np.mean(np.abs(g_fit - g_data))
-print(" alpha, AAD% =", np.around(alpha, 5), np.around(AAD*100, 2), salt)
-print(" alphaD =", np.around(alphaD, 5))
+AAD2 = np.mean(np.abs(g_fit_xhat - g_data_xhat))
+print(" alpha_xhat =", np.around(alpha_xhat, 5))
+print(" alphaD, AAD2% =", np.around(alphaD, 5), np.around(AAD2*100, 2))
 
 # Part 3: Mix-Salt Mix-Solvent Predicting ...
 
@@ -117,12 +130,12 @@ for Mix_i in range(2):
 
     if Mix_i == 0:  # 2-salt: NaCl+NaBr
       salt_Mix = 'NaBr'
-      _, q5, q6, p5, p6, V5, V6, mM_Mix, D_Mix = Born(salt_Mix, ϵ_s_x, 0, T)  # for H2O
+      _, q5, q6, p5, p6, V5, V6, mM_Mix, D_Mix = Born(salt_Mix, ϵ_s_x, 0, T)
       C5m = DP.C1mX0_Mix1  # add C5m to C1m
       C5M = m2M(C5m, mM_Mix, D_Mix, 0, T) * S2
       C6M = -q5 * C1M / q6
 
-      IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2 + C5M * q5 ** 2 + C6M * q6 ** 2)  # array
+      IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2 + C5M * q5 ** 2 + C6M * q6 ** 2)
       numPW = C3M * pH2O + C4M * pMeOH
       numPI = C1M * p1 + C2M * p2 + C5M * p5 + C6M * p6
       numPWI = numPW + numPI
@@ -140,7 +153,11 @@ for Mix_i in range(2):
       ActIn_M2 = (0,0,0,0,0,0)          # for mix-salt 2
       ActIn_Mix = (ActIn_M1, ActIn_M2)
 
-      alpha_x = alpha + x * alphaD
+      if x <= xhat:
+        alpha_x = alpha + x * alphaD / xhat  # [P2(33a)]
+      else:
+        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat  # [P2(33b)]
+
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
@@ -157,7 +174,7 @@ for Mix_i in range(2):
       C6M = -q5 * C1M / q6
 
       salt_Mix = 'NaF'
-      _, q7, q8, p7, p8, V7, V8, mM_Mix, D_Mix = Born(salt_Mix, ϵ_s_x, 0, T)  # for H2O
+      _, q7, q8, p7, p8, V7, V8, mM_Mix, D_Mix = Born(salt_Mix, ϵ_s_x, 0, T)
       C7m = DP.C1mX0_Mix2  # add another C7m to C1m
       C7M = m2M(C7m, mM_Mix, D_Mix, 0, T) * S2
       C8M = -q7 * C1M / q8
@@ -180,7 +197,11 @@ for Mix_i in range(2):
       ActIn_M2 = (q7, q8, V7, V8, C7M, C8M)  # for mix-salt 2
       ActIn_Mix = (ActIn_M1, ActIn_M2)
 
-      alpha_x = alpha + x * alphaD
+      if x <= xhat:
+        alpha_x = alpha + x * alphaD / xhat  # [P2(33a)]
+      else:
+        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat  # [P2(33b)]
+
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
       ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
@@ -189,7 +210,7 @@ for Mix_i in range(2):
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
       g_predX_Mix2 = g_predX_Mix2 + (ActOut.g_PF, )  # Predicted results
 
-# Plot fitted results
+# Plot Fig 3
 plt.figure(1)
 plt.subplot(a, b, c)
 plt.xlabel('m (mol/kg)', fontsize=12)
@@ -200,7 +221,6 @@ plt.title('(A) NaCl+NaBr', fontsize=12)
 
 plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
 
-# Plot predicted results
 for i in range(6):
   if i == 0:
     g_pred_x = g_predX_Mix1[0]
@@ -233,7 +253,6 @@ plt.title('(B) NaCl+NaBr+NaF', fontsize=12)
 
 plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
 
-# Plot predicted results
 for i in range(6):
   if i == 0:
     g_pred_x = g_predX_Mix2[0]
@@ -257,9 +276,3 @@ for i in range(6):
   plt.plot(C1mX[0], g_pred_x, 'b')
 
 plt.show()
-'''
-WARNING: array lam < 0: [ 0.979  0.97   0.953  0.944  0.933  0.918  0.906  0.884  0.851  0.823
-  0.789  0.742  0.702  0.635  0.579  0.529  0.444  0.337  0.19   0.067 -0.136 -0.304]
-WARNING: array lam < 0: [ 0.979  0.97   0.952  0.944  0.933  0.917  0.905  0.883  0.849  0.822
-  0.787  0.739  0.699  0.631  0.574  0.524  0.437  0.328  0.178  0.052 -0.157 -0.332]
-'''

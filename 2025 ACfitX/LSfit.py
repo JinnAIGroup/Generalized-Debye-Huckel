@@ -1,15 +1,13 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
+Author: Jinn-Liang Liu, June 25, 2025.
 '''
 import numpy as np
 
-from Activity import ActF_2  # Activity Formula 2
+from Activity import Activity
 
-Activity = ActF_2
 deviate, ErrTol = 0.0001, 0.008
 
-
-class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
+class LSfit():  # [P1 Step 1-5] input: g_data; output: LS g_fit and alpha[i]
   def __init__(self, LfIn):
     (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
      q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T) = LfIn
@@ -33,9 +31,9 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
         ActOut = Activity(ActIn, ActIn_Mix)  # Given theta, Activity() returns a mean activity.
         g_fit = ActOut.g_PF
         if (len(g_fit.shape) > 0):
-          g_fit_k = g_fit[k]  # g_fit: array by array IS
+          g_fit_k = g_fit[k]  # by array IS (array)
         else:
-          g_fit_k = g_fit  # g_fit: scalar
+          g_fit_k = g_fit  # (scalar)
         n = n + 1
 
       theta_all[k] = theta
@@ -72,7 +70,7 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
-      g_fit_all[i, :] = ActOut.g_PF  # ComplexWarning: Casting complex values to real discards the imaginary part
+      g_fit_all[i, :] = ActOut.g_PF
 
     # [P1 Step 5.4]
     Errs = np.zeros(Nc)
@@ -82,9 +80,7 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
       err = np.max( np.abs(g_fit_all[i] - g_data) )
       Errs[i] = err
 
-    # Sort Nc errors in ascending order.
-    ascend_errs = sorted(Errs)
-
+    ascend_errs = sorted(Errs)  # sort Nc errors in ascending order.
     idx = np.argmin(Errs)
 
     # [P1 Step 5.5] Resume the best 5 alphas, g_fit.
@@ -93,7 +89,7 @@ class LSfit():  # input: g_data; output: LS g_fit and alpha[0], ..., [4]
     self.g_fit = g_fit_all[idx,:]
 
 
-class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output: LS alpha[1], ..., [4]
+class LSfitX():  # [P2 Step 2] inter- or eXtrapolation; input: g_data and alphaX=alpha[0]; output: LS alpha[1], ..., [4]
   def __init__(self, LfInX):  # add alphaX to LfIn and get LfInX for fixing alpha[0]
     (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
      q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix) = LfInX
@@ -102,7 +98,6 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
     Nc = int( N * (N - 1) * (N - 2) * (N - 3) * (N - 4) / (24 * 5) )  # total combinations for finding (alpha[0], [1], [2], [3], [4])
     theta_all = np.zeros(N)
 
-    # [P1 Step 5.1] Get theta(k) that yields best g_fit(k) to g_data(k) by alternating variation of theta from 1.
     for k in range(N):
       g_fit_k, theta, n = 1.0, 1.0, 1
       while np.abs(g_fit_k - g_data[k]) > ErrTol and theta > 0 and theta < 2:  # tune ErrTol for better self.alpha
@@ -110,13 +105,12 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
         ActIn = (theta, BornR0, Rsh_c[k], Rsh_a[k], C1M[k], C3M, C4M, IS, C1m, \
                  q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
-        # Given theta, Activity() returns a mean activity.
         ActOut = Activity(ActIn, ActIn_Mix)
         g_fit = ActOut.g_PF
         if (len(g_fit.shape) > 0):
-          g_fit_k = g_fit[k]  # g_fit: array by array IS
+          g_fit_k = g_fit[k]
         else:
-          g_fit_k = g_fit  # g_fit: scalar
+          g_fit_k = g_fit
         n = n + 1
 
       theta_all[k] = theta
@@ -126,7 +120,7 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
 
     # Modified [P1 Step 5.2] Given alphaX == alpha[0] fixed, theta_all[i], theta_all[j],
     # find (alphaX, alpha[1],..., [4]) by sloving 4x4 matrix system for all (i, j).
-    for i in range(N):  # Fit for H2O
+    for i in range(N):
       for j in range(i+1, N):
         for k in range(j+1, N):
           for l in range(k+1, N):
@@ -145,7 +139,6 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
 
     g_fit_all = np.zeros((Nc, N))
 
-    # [P1 Step 5.3]
     for i in range(Nc):
       theta = 1 + ALPHA[i][0] * (IS ** 0.5) + ALPHA[i][1] * IS + ALPHA[i][2] * (IS ** 1.5) \
                 + ALPHA[i][3] * (IS ** 2)   + ALPHA[i][4] * (IS ** 2.5)
@@ -156,19 +149,15 @@ class LSfitX():  # for eXtrapolation; input: g_data and alphaX=alpha[0]; output:
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
-      g_fit_all[i, :] = ActOut.g_PF  # ComplexWarning: Casting complex values to real discards the imaginary part
+      g_fit_all[i, :] = ActOut.g_PF
 
-    # [P1 Step 5.4]
     Errs = np.zeros(Nc)
 
     for i in range(Nc):
       err = np.max( np.abs(g_fit_all[i] - g_data) )
       Errs[i] = err
 
-    # Sort Nc errors in ascending order.
     ascend_errs = sorted(Errs)
-
     idx = np.argmin(Errs)
 
-    # [P1 Step 5.5] Resume the best 3 alphas, g_fit.
     self.alpha = ALPHA[idx, :]

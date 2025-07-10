@@ -1,9 +1,8 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
+Author: Jinn-Liang Liu, July 10, 2025.
 
 For P2 Example 4.1: LiCl, NaCl, NaBr in (H2O)x+(MeOH)1−x.
 
-Papers:
 P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
     Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
     Fluid Phase Equilibria 565, 113662 (2023)
@@ -12,6 +11,7 @@ P2: Chin-Lung Li, Ren-Chuen Chen, Xiaodong Liang, Jinn-Liang Liu,
 '''
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 from Physical import Solvent, Born, m2M
 from Data4_1 import DataFit, DataPredict
@@ -21,14 +21,14 @@ from LSfit import LSfit, Activity
 #   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
-#   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
+#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
 
-T, Z = 298.15, 0.68  # Z: polarizability factor [P2(2.22)]
+T, Z = 298.15, 0.68  # Z: polarizability factor [P2(22)]
 
 np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
 plt.figure(figsize=(13,8))
-a, b, c = 2, 3, 1  # subplot(a, b, c): rows, columns, counter for Fit to H2O
+a, b, c = 2, 3, 1  # subplot(a, b, c): rows, columns, counter
 
 Salts = ['NaF', 'NaCl', 'NaBr']
 
@@ -37,32 +37,31 @@ for salt in Salts:
 
   S2, C3M, C4M, V3, V4, pH2O, pMeOH, ϵ_s_x = Solvent(0, T)  # x=0 for pure H2O
 
-  # Born Radius: BornR0 in pure solvent (no salt) [P1(12), (13)]
+  # Born Radius (array): BornR0[0] for c, [1] for a, in pure solvent (no salt) [P2(28)(37)]
   BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)  # for H2O
 
-  DF = DataFit(salt)  # pure-H2O activity data to be fitted
-  g_data = np.log(DF.gamma)  # gamma: mean activity [P1(16)]
-  #g_data = DF.lngamma  # gamma: mean activity [P1(16)]
+  DF = DataFit(salt)  # data to fit
+  g_data = np.log(DF.gamma)  # ln(gamma)
 
-  # Salt molality (m) to Molarity (M): C1m (array) to C1M
-  C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # for H2O
+  # Salt molality (m) to Molarity (M): C1m (array) to C1M (array)
+  C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # 0 for H2O
   C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
 
   IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
-  numPW = C3M * pH2O  # [P2(2.22)]
-  numPI = C1M * p1 + C2M * p2
+  numPW = C3M * pH2O  # Water Polarizability [P2(22)]
+  numPI = C1M * p1 + C2M * p2  # Ion Polarizability
   numPWI = numPW + numPI
   fac_pZ = 1 - Z * IS / C3M
   pH2O_Z = fac_pZ * pH2O
   numPW_Z = C3M * pH2O_Z
   numPWI_Z = numPW_Z + numPI
   X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
+  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(22)]
 
-  R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
-  Rsh_c, Rsh_a = R_ca, R_ca
+  R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
+  Rsh_c, Rsh_a = R_ca, R_ca  # shell Radius [P2(29)] (array)
 
-  # LSfit() returns g_fit as the best fit to g_data with alpha_i [P1(14)] by Least Squares.
+  # LSfit() [P1 Step 1-5] returns the best g_fit to g_data with alpha[i] [P2(28)] by Least Squares.
   LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
           q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
@@ -78,15 +77,32 @@ for salt in Salts:
   DP = DataPredict(salt)  # miXed-solvent activity data to be compared with predicted results
   g_dataX, mixNo, C1mX = DP.g_dataX, DP.mixNo, DP.C1mX
 
-  x, C1m_x, g_dataY = 0.2, C1mX[0], np.log(g_dataX[0])
+  if salt == 'NaF':
+    xhat, C1m_xhat, g_data_xhat = 0.2, C1mX[0], np.log(g_dataX[0])
+  if salt == 'NaCl':
+    xhat, C1m_xhat_1, g_data_xhat_1 = 0.4, C1mX[1], np.log(g_dataX[1])
+    # extrapolate C1mX[1] to C1mX[0]
+    C1M = m2M(C1mX[1], mM, DG, 0.4, T) * S2
+    C2M = -q1 * C1M / q2
+    IS = 0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
+    C1M_X = m2M(C1mX[0], mM, DG, 0.2, T) * S2
+    C2M_X = -q1 * C1M_X / q2
+    IS_X = 0.5 * (C1M_X * q1 ** 2 + C2M_X * q2 ** 2)
+    ISX0 = IS[0] if IS[0] < IS_X[0] else IS_X[0]
+    IS_X = np.linspace(ISX0, IS_X[-1], num=len(IS_X))
+    Spline = InterpolatedUnivariateSpline(IS, g_data_xhat_1, k=1)  # k: spline order 1 (linear), 2, ...
+    g_data_xhat = Spline(IS_X)  # eXtrapolation
+    C1m_xhat = IS_X * C1mX[0][-1] / IS_X[-1]  # interpolation
+  if salt == 'NaBr':
+    xhat, C1m_xhat, g_data_xhat = 0.8, C1mX[3], np.log(g_dataX[3])
 
-  _, C3M, C4M, _, _, _, _, ϵ_s_x = Solvent(x, T)
-  BornR0, _, _, _, _, _, _, _, _ = Born(salt, ϵ_s_x, x, T)
-  C1M = m2M(C1m_x, mM, DG, x, T) * S2
+  _, C3M, C4M, _, _, _, _, ϵ_s_x = Solvent(xhat, T)
+  BornR0, _, _, _, _, _, _, _, _ = Born(salt, ϵ_s_x, xhat, T)
+  C1M = m2M(C1m_xhat, mM, DG, xhat, T) * S2
   C2M = -q1 * C1M / q2
 
   IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
-  numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.22)]
+  numPW = C3M * pH2O + C4M * pMeOH
   numPI = C1M * p1 + C2M * p2
   numPWI = numPW + numPI
   fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -94,20 +110,20 @@ for salt in Salts:
   numPW_Z = C3M * pH2O_Z + C4M * pMeOH_Z
   numPWI_Z = numPW_Z + numPI
   X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-  ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
+  ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-  R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+  R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
   Rsh_c, Rsh_a = R_ca, R_ca
 
-  LfIn = (g_dataY, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
+  LfIn = (g_data_xhat, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m_xhat, \
           q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
   LfOut = LSfit(LfIn)
 
-  alphaY = LfOut.alpha
-  alphaD = alphaY - alpha
+  g_fit_xhat, alpha_xhat = LfOut.g_fit, LfOut.alpha  # fitted results
+  alphaD = alpha_xhat - alpha  # [P2(33)]
 
-  AAD2 = np.mean(np.abs(LfOut.g_fit - g_dataY))
-  print(" alphaY =", np.around(alphaY, 5))
+  AAD2 = np.mean(np.abs(g_fit_xhat - g_data_xhat))
+  print(" alpha_xhat =", np.around(alpha_xhat, 5))
   print(" alphaD, AAD2% =", np.around(alphaD, 5), np.around(AAD2*100, 2))
   g_predX, plot_thetaX = (), ()
 
@@ -127,7 +143,7 @@ for salt in Salts:
     C2M = -q1 * C1M / q2
 
     IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
-    numPW = C3M * pH2O + C4M * pMeOH  # [P2(2.22)]
+    numPW = C3M * pH2O + C4M * pMeOH
     numPI = C1M * p1 + C2M * p2
     numPWI = numPW + numPI
     fac_pZ = 1 - Z * IS / (C3M + C4M)
@@ -135,12 +151,16 @@ for salt in Salts:
     numPW_Z = C3M * pH2O_Z + C4M * pMeOH_Z
     numPWI_Z = numPW_Z + numPI
     X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
-    ϵ_s_x_I = (2 * X + 1) / (1 - X)  # [P2(2.22)]
+    ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-    R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)  # array [P2(3.4)]
+    R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
     Rsh_c, Rsh_a = R_ca, R_ca
 
-    alpha_x = alpha + x * alphaD
+    if x <= xhat:
+      alpha_x = alpha + x * alphaD / xhat  # [P2(33a)]
+    else:
+      alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat  # [P2(33b)]
+
     theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
     ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
              q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
@@ -155,18 +175,25 @@ for salt in Salts:
     PTX = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
     plot_thetaX = plot_thetaX + (PTX, )
 
-  # Plot fitted results [P2F2]
+  # Plot Fig 2
   plt.figure(1)
   plt.subplot(a, b, c)
   plt.plot(DF.C1m, g_data, 'k.')
-  plt.plot(DF.C1m, g_fit, '-r')
+  plt.plot(DF.C1m, g_fit, '-r')  # fitted at x = 0
+  if salt == 'NaCl':
+    plt.plot(C1m_xhat_1, g_data_xhat_1, 'k.')
+    plt.plot(C1m_xhat[:11], g_fit_xhat[:11], '-r')  # fitted at x = xhat
+  else:
+    plt.plot(C1m_xhat, g_data_xhat, 'k.')
+    plt.plot(C1m_xhat, g_fit_xhat, '-r')
+
   N = len(DF.C1m)
   if salt == 'NaF':
     plt.text(DF.C1m[N-1] - 0.09, g_data[N-1] - 0.04, 'x = 0')  # fitted curve
   if salt == 'NaCl':
-    plt.text(DF.C1m[N-1] - 0.5, g_data[N-1] - 0.08, 'x = 0')  # fitted curve
+    plt.text(DF.C1m[N-1] - 0.5, g_data[N-1] - 0.08, 'x = 0')
   else:
-    plt.text(DF.C1m[N-1] - 0.5, g_data[N-1] - 0.12, 'x = 0')  # fitted curve
+    plt.text(DF.C1m[N-1] - 0.5, g_data[N-1] - 0.12, 'x = 0')
   if salt == 'NaF':  title = '(A) NaF'
   if salt == 'NaCl': title = '(B) NaCl'
   if salt == 'NaBr': title = '(C) NaBr'
@@ -174,35 +201,35 @@ for salt in Salts:
 
   if salt == Salts[0]: plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
 
-  # Plot predicted results [P2F2]
   for i in range(mixNo):
     if i == 0:
       g_data_x, g_pred_x = np.log(g_dataX[0]), g_predX[0]
       N = len(C1mX[0])
       if salt == 'NaCl':
         plt.text(C1mX[0][N-1] - 0.2, g_data_x[N-1] - 0.08, '0.2')
-        plt.plot(C1mX[0], g_pred_x, 'b')
-        AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
-        print(" AAD3% =", np.around(AAD3*100, 2))
       else:
         plt.text(C1mX[0][N-1] + 0.02, g_data_x[N-1] - 0.02, '0.2')
-        plt.plot(C1mX[0], g_pred_x, '-r')
-      plt.plot(C1mX[0], g_data_x, 'k.')
+      if salt != 'NaF':
+        plt.plot(C1mX[0], g_pred_x, 'b')
+        plt.plot(C1mX[0], g_data_x, 'k.')
+        AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
+        print(" AAD3% =", np.around(AAD3*100, 2))
     elif i == 1:
       g_data_x, g_pred_x = np.log(g_dataX[1]), g_predX[1]
       N = len(C1mX[1])
-      if salt == 'NaCl':
-        plt.plot(C1mX[1], g_pred_x, '-r')
-      else:
+      plt.text(C1mX[1][N-1] + 0.03, g_data_x[N-1] - 0.02, '0.4')
+      if salt != 'NaCl':
         plt.plot(C1mX[1], g_pred_x, 'b')
+        plt.plot(C1mX[1], g_data_x, 'k.')
         AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
         print(" AAD3% =", np.around(AAD3*100, 2))
-      plt.plot(C1mX[1], g_data_x, 'k.')
-      plt.text(C1mX[1][N-1] + 0.03, g_data_x[N-1] - 0.02, '0.4')
     elif i == 2:
       g_data_x, g_pred_x = np.log(g_dataX[2]), g_predX[2]
       N = len(C1mX[2])
-      plt.text(C1mX[2][N-1] + 0.03, g_data_x[N-1] - 0.02, '0.6')
+      if salt == 'NaBr':
+        plt.text(C1mX[2][N-1] + 0.03, g_data_x[N-1] - 0.06, '0.6')
+      else:
+        plt.text(C1mX[2][N-1] + 0.03, g_data_x[N-1] - 0.02, '0.6')
       plt.plot(C1mX[2], g_data_x, 'k.')
       plt.plot(C1mX[2], g_pred_x, 'b')
       AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
@@ -211,10 +238,11 @@ for salt in Salts:
       g_data_x, g_pred_x = np.log(g_dataX[3]), g_predX[3]
       N = len(C1mX[3])
       plt.text(C1mX[3][N-1] + 0.03, g_data_x[N-1] - 0.02, '0.8')
-      plt.plot(C1mX[3], g_data_x, 'k.')
-      plt.plot(C1mX[3], g_pred_x, 'b')
-      AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
-      print(" AAD3% =", np.around(AAD3*100, 2))
+      if salt != 'NaBr':
+        plt.plot(C1mX[3], g_data_x, 'k.')
+        plt.plot(C1mX[3], g_pred_x, 'b')
+        AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
+        print(" AAD3% =", np.around(AAD3*100, 2))
     elif i == 4:
       g_data_x, g_pred_x = np.log(g_dataX[4]), g_predX[4]
       N = len(C1mX[4])
@@ -223,10 +251,10 @@ for salt in Salts:
       plt.plot(C1mX[4], g_pred_x, 'b')
       AAD3 = np.mean(np.abs(g_pred_x - g_data_x))
       print(" AAD3% =", np.around(AAD3*100, 2))
+    #print(" i, C1mX[i][0], g_data_x[0] =", i, C1mX[i][0], np.around(g_data_x[0], 4))
 
   c = c + b
 
-  # Plot theta results [P2F2]
   plt.figure(1)
   plt.subplot(a, b, c)
   plt.plot(DF.C1m, plot_theta, '-r')
@@ -235,6 +263,7 @@ for salt in Salts:
   if salt == Salts[0]: plt.ylabel(r"$\theta$", fontsize=12)
 
   for i in range(mixNo):
+    #print(" i, plot_thetaX[i][0] =", i, np.around(plot_thetaX[i][0], 4))
     if i == 0:
       plt.plot(C1mX[0], plot_thetaX[0], '--g')
     elif i == 1:

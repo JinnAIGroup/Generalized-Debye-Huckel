@@ -1,6 +1,6 @@
 '''
-Author: Jinn-Liang Liu, May 12, 2025.
-Example 4.4: NaCl+MgCl2 in H2O at T = 25, 100, 200, 300 ◦C. Data from [P3F3] = Fig 3 in P3 etc.
+Author: Jinn-Liang Liu, July 10, 2025.
+Example 4.4: NaCl+MgCl2 in H2O at T = 25, 100, 200, 300 ◦C.
 '''
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,19 +11,19 @@ from Data4_4 import DataFit
 from LSfit import LSfit, Activity, LSfitX
 
 # Solution Parameters:
-#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x: mixing percentage of 3 and 4 in [0, 1]
+#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P1(11)], V: volume
-#   gamma: mean activity data [P1(16)] of target salt 1+2 (array)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
+#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
 
 Z = 0.68
 
-np.set_printoptions(suppress=True)  # set 0.01 not 1e-2
+np.set_printoptions(suppress=True)
 plt.figure(figsize=(13,8))
-a, b, c = 2, 2, 1  # subplot(a, b, c): rows, columns, counter; for Part 1, Part 2 (Example 4.4)
+a, b, c = 2, 2, 1
 
-Salts = ['NaCl', 'MgCl2']  # for Part 1, Part 2
+Salts = ['NaCl', 'MgCl2']
 
 for salt in Salts:
   if salt == 'NaCl':  Ts = [298.15, 373.15, 473.15, 523.15, 573.15]
@@ -33,18 +33,16 @@ for salt in Salts:
   for (T, T_i) in zip(Ts, range(len(Ts))):
     # Part 1: Fiting ...
 
-    S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)  # x=0 for pure H2O
-    # Born Radius: BornR0 in pure solvent (no salt) [P1(12), (13)]
-    BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)  # for H2O
+    S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
+    BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)
 
-    DF = DataFit(salt)  # data to fit for H2O
-    g_data = DF.lngamma[T_i]  # gamma: mean activity
+    DF = DataFit(salt)
+    g_data = DF.lngamma[T_i]
 
-    # Salt molality (m) to Molarity (M): C1m (array) to C1M
-    C1M = m2M(DF.C1m, mM, DG, 0, T) * S2  # for H2O
-    C2M = -q1 * C1M / q2  # q1 C1M + q2 C2M = 0
+    C1M = m2M(DF.C1m, mM, DG, 0, T) * S2
+    C2M = -q1 * C1M / q2
 
-    IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)  # Ionic Strength (array)
+    IS =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2)
     numPW = C3M * pH2O
     numPI = C1M * p1 + C2M * p2
     numPWI = numPW + numPI
@@ -58,7 +56,6 @@ for salt in Salts:
     R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
     Rsh_c, Rsh_a = R_ca, R_ca
 
-    # LSfit() returns g_fit as the best fit to g_data with alpha_i [P1(14)] by Least Squares.
     LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
             q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
     LfOut = LSfit(LfIn)
@@ -87,14 +84,13 @@ for salt in Salts:
     IS_X =  0.5 * (C1M * q1 ** 2 + C2M * q2 ** 2 + C5M * q5 ** 2 + C6M * q6 ** 2)  # 2-salt array
 
     ISX0 = IS[0] if IS[0] < IS_X[0] else IS_X[0]
-    IS_X = np.linspace(ISX0, IS_X[-1], num=2 * len(IS_X))  # double spline points
+    IS_X = np.linspace(ISX0, IS_X[-1], num=2 * len(IS_X))
 
-    Spline = InterpolatedUnivariateSpline(IS, g_data, k=1)  # k: spline order 1, 2, 3 (cubic)
-    g_data_X = Spline(IS_X)  # inter/eXtrapolation
+    Spline = InterpolatedUnivariateSpline(IS, g_data, k=1)
+    g_data_X = Spline(IS_X)
 
-    C1m_X = IS_X * DF.C1m[-1] / IS_X[-1]  # scale back to 1-salt DF.C1m
-      # 2*IS_X = C1M*q1**2 + C2M*q2**2 = C1M*q1**2 - q1*C1M/q2*q2**2 =>
-    C1M_X = 2 * IS_X / (q1**2 - q2 * q1)  # 1-salt
+    C1m_X = IS_X * DF.C1m[-1] / IS_X[-1]
+    C1M_X = 2 * IS_X / (q1**2 - q2 * q1)
 
     C1m_Xmix = C1m_X / 2
     C1M = m2M(C1m_Xmix, mM, DG, 0, T) * S2
@@ -121,11 +117,11 @@ for salt in Salts:
     ActIn_M2 = (0,0,0,0,0,0)               # for mix-salt 2
     ActIn_Mix = (ActIn_M1, ActIn_M2)
 
-    alphaX = alpha[0]  # add alphaX to LfIn and get LfInX
+    alphaX = alpha[0]
     LfInX = (g_data_X, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS_X, DF.C1m, \
              q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix)
 
-    LfOut = LSfitX(LfInX)  # input: g_data and fixed alpha[0]; output: alpha[1], [2]
+    LfOut = LSfitX(LfInX)
     alpha_X = LfOut.alpha
     print(" alpha_X =", np.around(alpha_X, 5), salt, "+", salt_1)
     theta = 1 + alpha_X[0] * (IS_X ** 0.5) + alpha_X[1] * IS_X + alpha_X[2] * (IS_X ** 1.5) + alpha_X[3] * (IS_X ** 2) + alpha_X[4] * (IS_X ** 2.5)
@@ -133,7 +129,7 @@ for salt in Salts:
     g_predT = g_predT + (g_data_X, )  # Predicted results
     C1m_X_Mix = C1m_X_Mix + (C1m_X, )
 
-  # Plot fitted results
+  # Plot Fig 5
   plt.figure(1)
   plt.subplot(a, b, c)
   if salt == Salts[0]: plt.ylabel(r"$\ln\gamma_\pm$", fontsize=12)
@@ -176,7 +172,6 @@ for salt in Salts:
 
   c = c + b
 
-  # Plot predicted results
   plt.figure(1)
   plt.subplot(a, b, c)
   plt.xlabel('m (mol/kg)', fontsize=12)
