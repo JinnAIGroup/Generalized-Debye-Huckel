@@ -1,5 +1,9 @@
 '''
-Author: Jinn-Liang Liu, Nov 25, 2025.
+Author: Jinn-Liang Liu, Dec 30, 2025.
+
+P1: Chin-Lung Li, Shu-Yi Chou, Jinn-Liang Liu,
+    Generalized Debye–Hückel model for activity coefficients of electrolytes in water–methanol mixtures,
+    Fluid Phase Equilibria 565, 113662 (2023)
 '''
 import numpy as np
 
