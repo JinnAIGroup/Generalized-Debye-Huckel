@@ -1,28 +1,28 @@
 '''
-Author: Jinn-Liang Liu, July 10, 2025.
-Example 4.2: NaCl in [NaCl+NaBr] or [NaCl+NaBr+NaF] + [(H2O)x+(MeOH)(1−x)].
+Author: Jinn-Liang Liu, Nov 27, 2025.
+Figure 3: NaCl in [NaCl+NaBr] or [NaCl+NaBr+NaF] + [(H2O)x+(MeOH)(1−x)].
 '''
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 from Physical import Solvent, Born, m2M
-from Data4_1 import DataFit, DataPredict
+from Data2 import DataFit, DataPredict
 from LSfit import LSfit, Activity
 
 # Solution Parameters:
-#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
+#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
-#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent, V: volume
+#   gamma: mean activity data of target salt CA = ca = 1+2 (array)
 
-T, Z = 298.15, 0.68
 np.set_printoptions(suppress=True)
 plt.figure(figsize=(13,8))
 a, b, c = 1, 2, 1
 
 salt = 'NaCl'
+T, Z = 298.15, 0.68
 
 # Part 1: H2O Fiting ...
 
@@ -47,11 +47,14 @@ numPWI_Z = numPW_Z + numPI
 X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
 ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
-Rsh_c, Rsh_a = R_ca, R_ca
+R_sh = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 
-LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
+ActIn_M1 = (0,0,0,0,0,0)
+ActIn_M2 = (0,0,0,0,0,0)
+ActIn_Mix = (ActIn_M1, ActIn_M2)
+
+LfIn = (g_data, BornR0, R_sh, salt, C1M, C3M, C4M, IS, \
+        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, ActIn_Mix)
 LfOut = LSfit(LfIn)
 
 g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
@@ -94,11 +97,14 @@ numPWI_Z = numPW_Z + numPI
 X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
 ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
-Rsh_c, Rsh_a = R_ca, R_ca
+R_sh = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 
-LfIn = (g_data_xhat, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m_xhat, \
-        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
+ActIn_M1 = (0,0,0,0,0,0)
+ActIn_M2 = (0,0,0,0,0,0)
+ActIn_Mix = (ActIn_M1, ActIn_M2)
+
+LfIn = (g_data_xhat, BornR0, R_sh, salt, C1M, C3M, C4M, IS, \
+        q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, ActIn_Mix)
 LfOut = LSfit(LfIn)
 
 g_fit_xhat, alpha_xhat = LfOut.g_fit, LfOut.alpha
@@ -146,21 +152,20 @@ for Mix_i in range(2):
       X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
       ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-      R_ca = (1660.5655 / 8 / (C1M + C2M + C5M + C6M) * S2) ** (1/3)
-      Rsh_c, Rsh_a = R_ca, R_ca
+      R_sh = (1660.5655 / 8 / (C1M + C2M + C5M + C6M) * S2) ** (1/3)
 
-      ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)  # for mix-salt 1
-      ActIn_M2 = (0,0,0,0,0,0)          # for mix-salt 2
+      ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)
+      ActIn_M2 = (0,0,0,0,0,0)
       ActIn_Mix = (ActIn_M1, ActIn_M2)
 
       if x <= xhat:
-        alpha_x = alpha + x * alphaD / xhat  # [P2(33a)]
+        alpha_x = alpha + x * alphaD / xhat
       else:
-        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat  # [P2(33b)]
+        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat
 
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
-      ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
+      ActIn = (theta, BornR0, R_sh, C1M, C3M, C4M, IS, \
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction
@@ -190,21 +195,20 @@ for Mix_i in range(2):
       X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
       ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-      R_ca = (1660.5655 / 8 / (C1M + C2M + C5M + C6M + C7M + C8M) * S2) ** (1/3)
-      Rsh_c, Rsh_a = R_ca, R_ca
+      R_sh = (1660.5655 / 8 / (C1M + C2M + C5M + C6M + C7M + C8M) * S2) ** (1/3)
 
       ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)  # for mix-salt 1
       ActIn_M2 = (q7, q8, V7, V8, C7M, C8M)  # for mix-salt 2
       ActIn_Mix = (ActIn_M1, ActIn_M2)
 
       if x <= xhat:
-        alpha_x = alpha + x * alphaD / xhat  # [P2(33a)]
+        alpha_x = alpha + x * alphaD / xhat
       else:
-        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat  # [P2(33b)]
+        alpha_x = alpha_xhat + (x - xhat) * alphaD / xhat
 
       theta = 1 + alpha_x[0] * (IS ** 0.5) + alpha_x[1] * IS + alpha_x[2] * (IS ** 1.5) + alpha_x[3] * (IS ** 2) + alpha_x[4] * (IS ** 2.5)
 
-      ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, DF.C1m, \
+      ActIn = (theta, BornR0, R_sh, C1M, C3M, C4M, IS, \
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)  # Prediction

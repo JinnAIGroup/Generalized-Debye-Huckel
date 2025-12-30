@@ -1,5 +1,5 @@
 '''
-Author: Jinn-Liang Liu, June 25, 2025.
+Author: Jinn-Liang Liu, Nov 25, 2025.
 '''
 import numpy as np
 
@@ -9,23 +9,19 @@ deviate, ErrTol = 0.0001, 0.008
 
 class LSfit():  # [P1 Step 1-5] input: g_data; output: LS g_fit and alpha[i]
   def __init__(self, LfIn):
-    (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
-     q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T) = LfIn
+    (g_data, BornR0, R_sh, salt, C1M, C3M, C4M, IS, \
+     q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, ActIn_Mix) = LfIn
 
     N = len(C1M)
     Nc = int( N * (N - 1) * (N - 2) * (N - 3) * (N - 4) / (24 * 5) )  # total combinations for finding alpha[i]
     theta_all = np.zeros(N)
-
-    ActIn_M1 = (0,0,0,0,0,0)  # for mix-salt 1
-    ActIn_M2 = (0,0,0,0,0,0)  # for mix-salt 2
-    ActIn_Mix = (ActIn_M1, ActIn_M2)
 
     # [P1 Step 5.1] Get theta(k) that yields best g_fit(k) to g_data(k) by alternating variation of theta from 1.
     for k in range(N):
       g_fit_k, theta, n = 1.0, 1.0, 1
       while np.abs(g_fit_k - g_data[k]) > ErrTol and theta > 0 and theta < 2:  # tune ErrTol for better self.alpha
         theta = theta + ((-1) ** n) * (deviate * n)
-        ActIn = (theta, BornR0, Rsh_c[k], Rsh_a[k], C1M[k], C3M, C4M, IS, C1m, \
+        ActIn = (theta, BornR0, R_sh[k], C1M[k], C3M, C4M, IS, \
                  q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
         ActOut = Activity(ActIn, ActIn_Mix)  # Given theta, Activity() returns a mean activity.
@@ -64,9 +60,9 @@ class LSfit():  # [P1 Step 1-5] input: g_data; output: LS g_fit and alpha[i]
 
     # [P1 Step 5.3]
     for i in range(Nc):
-      theta = 1 + ALPHA[i][0] * (IS ** 0.5) + ALPHA[i][1] * IS + ALPHA[i][2] * (IS ** 1.5) \
-                + ALPHA[i][3] * (IS ** 2)   + ALPHA[i][4] * (IS ** 2.5)
-      ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
+      theta_LS = 1 + ALPHA[i][0] * (IS ** 0.5) + ALPHA[i][1] * IS + ALPHA[i][2] * (IS ** 1.5) \
+                   + ALPHA[i][3] * (IS ** 2)   + ALPHA[i][4] * (IS ** 2.5)
+      ActIn = (theta_LS, BornR0, R_sh, C1M, C3M, C4M, IS, \
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
@@ -84,14 +80,13 @@ class LSfit():  # [P1 Step 1-5] input: g_data; output: LS g_fit and alpha[i]
     idx = np.argmin(Errs)
 
     # [P1 Step 5.5] Resume the best 5 alphas, g_fit.
-    self.theta_all = theta_all
     self.alpha = ALPHA[idx, :]
-    self.g_fit = g_fit_all[idx,:]
+    self.g_fit = g_fit_all[idx, :]
 
 
 class LSfitX():  # [P2 Step 2] inter- or eXtrapolation; input: g_data and alphaX=alpha[0]; output: LS alpha[1], ..., [4]
   def __init__(self, LfInX):  # add alphaX to LfIn and get LfInX for fixing alpha[0]
-    (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, C1m, \
+    (g_data, BornR0, R_sh, salt, C1M, C3M, C4M, IS, \
      q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix) = LfInX
 
     N = len(C1M)
@@ -102,7 +97,7 @@ class LSfitX():  # [P2 Step 2] inter- or eXtrapolation; input: g_data and alphaX
       g_fit_k, theta, n = 1.0, 1.0, 1
       while np.abs(g_fit_k - g_data[k]) > ErrTol and theta > 0 and theta < 2:  # tune ErrTol for better self.alpha
         theta = theta + ((-1) ** n) * (deviate * n)
-        ActIn = (theta, BornR0, Rsh_c[k], Rsh_a[k], C1M[k], C3M, C4M, IS, C1m, \
+        ActIn = (theta, BornR0, R_sh[k], C1M[k], C3M, C4M, IS, \
                  q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
         ActOut = Activity(ActIn, ActIn_Mix)
@@ -145,7 +140,7 @@ class LSfitX():  # [P2 Step 2] inter- or eXtrapolation; input: g_data and alphaX
 
       if any(abs(theta) > 100): theta = theta / 10
 
-      ActIn = (theta, BornR0, Rsh_c, Rsh_a, C1M, C3M, C4M, IS, C1m, \
+      ActIn = (theta, BornR0, R_sh, C1M, C3M, C4M, IS, \
                q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
 
       ActOut = Activity(ActIn, ActIn_Mix)
@@ -161,3 +156,4 @@ class LSfitX():  # [P2 Step 2] inter- or eXtrapolation; input: g_data and alphaX
     idx = np.argmin(Errs)
 
     self.alpha = ALPHA[idx, :]
+    self.g_fit = g_fit_all[idx,:]

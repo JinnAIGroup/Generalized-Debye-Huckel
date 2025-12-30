@@ -1,25 +1,21 @@
 '''
-Author: Jinn-Liang Liu, July 10, 2025.
-Example 4.3: 1-salt (LiCl), 2-salt (LiCl+MgCl2), 3-salt (LiCl+MgCl2+LaCl3) in H2O.
+Author: Jinn-Liang Liu, Nov 27, 2025.
+Figure 4: 1-salt (LiCl), 2-salt (LiCl+MgCl2), 3-salt (LiCl+MgCl2+LaCl3) in H2O.
 '''
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 from Physical import Solvent, Born, m2M
-from Data4_3 import DataFit
+from Data4 import DataFit
 from LSfit import LSfit, Activity, LSfitX
 
 # Solution Parameters:
-#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 3 and 4 in [0, 1]
+#   0: void, 1: cation, 2: anion, 3: H2O, 4: MeOH, x or X: mixing percentage of 4 in [0, 1]
 #   5: cation, 6: anion, 7: cation, 8: anion
 #   Bulk concentrations in M: C1M (array), C2M (array), C3M (scalar), C4M (scalar)
-#   ϵ_s_x (scalar): dielectric constant of mixed solvent [P2(22)], V: volume
-#   gamma: mean activity data [P2(31)] of target salt CA = ca = 1+2 (array)
-
-T, Z = 298.15, 0.68
-
-S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
+#   ϵ_s_x (scalar): dielectric constant of mixed solvent, V: volume
+#   gamma: mean activity data of target salt CA = ca = 1+2 (array)
 
 np.set_printoptions(suppress=True)
 plt.figure(figsize=(13,8))
@@ -27,6 +23,8 @@ a, b, c = 1, 3, 1
 
 Salts = ['LiCl', 'MgCl2', 'LaCl3']
 #Salts = ['LaCl3']
+T, Z = 298.15, 0.68
+S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
 
 for salt in Salts:
   # Part 1: Fiting ...
@@ -50,19 +48,22 @@ for salt in Salts:
   X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
   ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-  R_ca = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
-  Rsh_c, Rsh_a = R_ca, R_ca
+  R_sh = (1660.5655 / 8 / (C1M + C2M) * S2) ** (1/3)
 
-  LfIn = (g_data, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS, DF.C1m, \
-          q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T)
+  ActIn_M1 = (0,0,0,0,0,0)
+  ActIn_M2 = (0,0,0,0,0,0)
+  ActIn_Mix = (ActIn_M1, ActIn_M2)
+
+  LfIn = (g_data, BornR0, R_sh, salt, C1M, C3M, C4M, IS, \
+          q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, ActIn_Mix)
   LfOut = LSfit(LfIn)
 
-  g_fit, alpha, theta_all = LfOut.g_fit, LfOut.alpha, LfOut.theta_all  # fitted results
+  g_fit, alpha = LfOut.g_fit, LfOut.alpha  # fitted results
 
   AAD = np.mean(np.abs(g_fit - g_data))
   print(" alpha, AAD% =", np.around(alpha, 5), np.around(AAD*100, 2), salt)
   theta = 1 + alpha[0] * (IS ** 0.5) + alpha[1] * IS + alpha[2] * (IS ** 1.5) + alpha[3] * (IS ** 2) + alpha[4] * (IS ** 2.5)
-  print(' Fig4 No Mix: BornR0[0], BornR_c[-1], Rsh_c[-1], IS[-1]:', np.around(BornR0[0], 2), np.around(theta[-1] * BornR0[0], 2), np.around(Rsh_c[-1], 2), np.around(IS[-1], 2))
+  print(' Fig4 No Mix: BornR0[0], BornR_c[-1], R_sh[-1], IS[-1]:', np.around(BornR0[0], 2), np.around(theta[-1] * BornR0[0], 2), np.around(R_sh[-1], 2), np.around(IS[-1], 2))
 
   # Part 2: Mix-Salt Predicting ...
 
@@ -129,11 +130,10 @@ for salt in Salts:
       X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
       ϵ_s_x_I = (2 * X + 1) / (1 - X)
 
-      R_ca = (1660.5655 / 8 / (C1M + C2M + C5M + C6M) * S2) ** (1/3)
-      Rsh_c, Rsh_a = R_ca, R_ca
+      R_sh = (1660.5655 / 8 / (C1M + C2M + C5M + C6M) * S2) ** (1/3)
 
-      ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)  # for mix-salt 1
-      ActIn_M2 = (0,0,0,0,0,0)               # for mix-salt 2
+      ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)
+      ActIn_M2 = (0,0,0,0,0,0)
       ActIn_Mix = (ActIn_M1, ActIn_M2)
     else:  # 3-salt inter/eXtrapolation
       C1m_Xmix = C1m_X / 3
@@ -156,15 +156,15 @@ for salt in Salts:
       numPWI_Z = numPW_Z + numPI
       X = (ϵ_s_x - 1) / (ϵ_s_x + 2) * numPWI_Z / numPWI
       ϵ_s_x_I = (2 * X + 1) / (1 - X)
-      R_ca = (1660.5655 / 8 / (C1M + C2M + C5M + C6M + C7M + C8M) * S2) ** (1/3)
-      Rsh_c, Rsh_a = R_ca, R_ca
+
+      R_sh = (1660.5655 / 8 / (C1M + C2M + C5M + C6M + C7M + C8M) * S2) ** (1/3)
 
       ActIn_M1 = (q5, q6, V5, V6, C5M, C6M)  # for mix-salt 1
       ActIn_M2 = (q7, q8, V7, V8, C7M, C8M)  # for mix-salt 2
       ActIn_Mix = (ActIn_M1, ActIn_M2)
 
     alphaX = alpha[0]  # add alphaX to LfIn and get LfInX
-    LfInX = (g_data_X, BornR0, Rsh_c, Rsh_a, salt, C1M, C3M, C4M, IS_X, DF.C1m, \
+    LfInX = (g_data_X, BornR0, R_sh, salt, C1M, C3M, C4M, IS_X, \
              q1, q2, V1, V2, V3, V4, ϵ_s_x, ϵ_s_x_I, T, alphaX, ActIn_Mix)
 
     LfOut = LSfitX(LfInX)  # input: g_data_X and fixed alpha[0]; output: alpha[1], ...
@@ -175,7 +175,7 @@ for salt in Salts:
       print(" alpha_X =", np.around(alpha_X, 5), salt, "+", salt_1, "+", salt_2)
     theta = 1 + alpha_X[0] * (IS_X ** 0.5) + alpha_X[1] * IS_X + alpha_X[2] * (IS_X ** 1.5) + alpha_X[3] * (IS_X ** 2) + alpha_X[4] * (IS_X ** 2.5)
 
-    print('                    Mix: BornR_c[-1], Rsh_c[-1], IS_X[-1]:', np.around(theta[-1] * BornR0[0], 2), np.around(Rsh_c[-1], 2), np.around(IS_X[-1], 2))
+    print('                    Mix: BornR_c[-1], R_sh[-1], IS_X[-1]:', np.around(theta[-1] * BornR0[0], 2), np.around(R_sh[-1], 2), np.around(IS_X[-1], 2))
 
     g_pred_Mix = g_pred_Mix + (g_data_X, )
     C1m_X_Mix = C1m_X_Mix + (C1m_X, )

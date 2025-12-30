@@ -1,6 +1,6 @@
 '''
-Author: Jinn-Liang Liu, May 5, 2025.
-For Example 4.1, 4.2
+Author: Jinn-Liang Liu, Nov 8, 2025.
+For Fig2, Fig3
 '''
 import warnings
 import numpy as np
