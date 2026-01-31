@@ -3,5 +3,5 @@
 #### <img src="fig2026.png" width="600" />
 ## [2023 Paper: LSfit Algorithm](https://www.sciencedirect.com/science/article/abs/pii/S0378381222002813) 
 #### Ion Activities in Mixed-Solvent Solutions
-![Activity MS](fig2023.png)
+!<img src="fig2023.png" width="600" />
 
