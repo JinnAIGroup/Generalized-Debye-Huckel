@@ -27,7 +27,7 @@ T, Z = 298.15, 0.68
 S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
 
 for salt in Salts:
-  # Part 1: Fiting ...
+  # Part 1: Fitting ...
 
   BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)
 

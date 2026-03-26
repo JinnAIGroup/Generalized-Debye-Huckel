@@ -32,7 +32,7 @@ Salts = ['NaF', 'NaCl', 'NaBr']
 T, Z = 298.15, 0.68  # Z: polarizability factor [P2(25)]
 
 for salt in Salts:
-  # Part 1: H2O Fiting ...
+  # Part 1: H2O Fitting ...
 
   S2, C3M, C4M, V3, V4, pH2O, pMeOH, ϵ_s_x = Solvent(0, T)  # x=0 for pure H2O
 
@@ -74,7 +74,7 @@ for salt in Salts:
   AAD1 = np.mean(np.abs(g_fit - g_data))
   print(" alpha, AAD1% =", np.around(alpha, 5), np.around(AAD1*100, 2), salt)
 
-  # Part 2: MeOH Fiting for alphaD ...
+  # Part 2: MeOH Fitting for alphaD ...
 
   DP = DataPredict(salt)  # miXed-solvent activity data to be compared with predicted results
   g_dataX, mixNo, C1mX = DP.g_dataX, DP.mixNo, DP.C1mX

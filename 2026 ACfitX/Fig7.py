@@ -30,7 +30,7 @@ for salt in Salts:
     Ts = [298.15]
 
     for (T, T_i) in zip(Ts, range(len(Ts))):
-      # Part 1: Fiting ...
+      # Part 1: Fitting ...
       S2, C3M, C4M, V3, V4, pH2O, _, ϵ_s_x = Solvent(0, T)
       BornR0, q1, q2, p1, p2, V1, V2, mM, DG = Born(salt, ϵ_s_x, 0, T)
 
